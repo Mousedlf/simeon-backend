@@ -37,12 +37,10 @@ class RegistrationController extends AbstractController
 
         $taken = $userRepository->findOneBy(['username' => $user->getUsername()]);
         if (!$taken) {
+            $user->setPublic(true);
             $manager->persist($user);
             $manager->flush();
 
-            $response = [
-                'username'
-            ];
             return $this->json("user " . $user->getUsername() . " registered", 200);
         } else {
             return $this->json("username already taken", 401);
