@@ -13,6 +13,13 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api/user')]
 class UserController extends AbstractController
 {
+    #[Route('/all/public', methods: ['GET'])]
+    public function getAllPublicUsers(UserRepository $userRepository): Response
+    {
+        $publicUsers = $userRepository->findByStatus(true);
+        return $this->json($publicUsers, Response::HTTP_OK, [], ['groups' => ['users:read']]);
+    }
+
     /**
      * Get basic user informations.
      * @return Response (User)

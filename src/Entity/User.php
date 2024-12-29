@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -18,6 +20,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:read', 'users:read', 'trip:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
@@ -41,12 +44,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:read'])]
+    #[Groups(['user:read','users:read', 'trip:read'])]
     private ?string $username = null;
 
     #[ORM\Column]
     #[Groups(['user:read'])]
     private ?bool $public = null;
+
+    /**
+     * @var Collection<int, Trip>
+     */
+    #[ORM\OneToMany(targetEntity: Trip::class, mappedBy: 'owner', orphanRemoval: true)]
+    private Collection $trips;
+
+    public function __construct()
+    {
+        $this->trips = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -155,6 +169,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPublic(bool $public): static
     {
         $this->public = $public;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Trip>
+     */
+    public function getTrips(): Collection
+    {
+        return $this->trips;
+    }
+
+    public function addTrip(Trip $trip): static
+    {
+        if (!$this->trips->contains($trip)) {
+            $this->trips->add($trip);
+            $trip->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTrip(Trip $trip): static
+    {
+        if ($this->trips->removeElement($trip)) {
+            // set the owning side to null (unless already changed)
+            if ($trip->getOwner() === $this) {
+                $trip->setOwner(null);
+            }
+        }
 
         return $this;
     }
