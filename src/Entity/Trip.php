@@ -40,7 +40,7 @@ class Trip
     private ?\DateTimeImmutable $endDate = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $days = null;
+    private ?int $nbOfDays = null;
 
 
     /**
@@ -59,10 +59,17 @@ class Trip
     #[ORM\Column(nullable: true)]
     private ?bool $public = null;
 
+    /**
+     * @var Collection<int, DayOfTrip>
+     */
+    #[ORM\OneToMany(targetEntity: DayOfTrip::class, mappedBy: 'trip', orphanRemoval: true)]
+    private Collection $daysOfTrip;
+
     public function __construct()
     {
         $this->sentInvites = new ArrayCollection();
         $this->participants = new ArrayCollection();
+        $this->daysOfTrip = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -130,14 +137,14 @@ class Trip
         return $this;
     }
 
-    public function getDays(): ?int
+    public function getNbOfDays(): ?int
     {
-        return $this->days;
+        return $this->nbOfDays;
     }
 
-    public function setDays(?int $days): static
+    public function setNbOfDays(?int $nbOfDays): static
     {
-        $this->days = $days;
+        $this->$nbOfDays = $nbOfDays;
 
         return $this;
     }
@@ -211,6 +218,36 @@ class Trip
     public function setPublic(?bool $public): static
     {
         $this->public = $public;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DayOfTrip>
+     */
+    public function getDaysOfTrip(): Collection
+    {
+        return $this->daysOfTrip;
+    }
+
+    public function addDaysOfTrip(DayOfTrip $daysOfTrip): static
+    {
+        if (!$this->daysOfTrip->contains($daysOfTrip)) {
+            $this->daysOfTrip->add($daysOfTrip);
+            $daysOfTrip->setTrip($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDaysOfTrip(DayOfTrip $daysOfTrip): static
+    {
+        if ($this->daysOfTrip->removeElement($daysOfTrip)) {
+            // set the owning side to null (unless already changed)
+            if ($daysOfTrip->getTrip() === $this) {
+                $daysOfTrip->setTrip(null);
+            }
+        }
 
         return $this;
     }

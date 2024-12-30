@@ -14,7 +14,6 @@ use App\Repository\TripRepository;
 use App\Repository\UserRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
-use http\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -71,7 +70,7 @@ class TripService
             return "start date must be after end date";
         }
         $nbDays =($trip->getStartDate())->diff($trip->getEndDate())->days + 1;
-        $trip->setDays($nbDays);
+        $trip->setNbOfDays($nbDays);
 
         $existingTrip = $this->tripRepository->findOneByName($trip->getName());
         if ($existingTrip) {
@@ -147,7 +146,8 @@ class TripService
      * Add participant(s) to a trip.
      * @param Trip $trip
      * @param Request $request
-     * @return void
+     * @param $currentUser
+     * @return array|string
      */
     public function addPeopleToTrip(Trip $trip, Request $request, $currentUser): array|string
     {
@@ -233,7 +233,7 @@ class TripService
      * Manage roles of participants.
      * @param Trip $trip
      * @param Request $request
-     * @return Response
+     * @return Response|string
      */
     public function changeStatusOfParticipants(Trip $trip, Request $request): Response|string
     {
