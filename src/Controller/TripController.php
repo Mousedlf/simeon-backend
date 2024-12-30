@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Trip;
 use App\Entity\User;
+use App\Enum\ParticipantStatus;
+use App\Repository\TripParticipantRepository;
 use App\Repository\TripRepository;
 use App\Service\TripService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,7 +30,7 @@ class TripController extends AbstractController
         }
         if ($user->isPublic() or $user === $this->getUser()) {
             $trips = $tripService->getTripsOfUser($user);
-            return $this->json($trips, 403, [], ['groups' => 'trip:read']);
+            return $this->json($trips, Response::HTTP_OK, [], ['groups' => 'trip:read']);
         } else {
             return $this->json("access denied", Response::HTTP_FORBIDDEN);
         }
@@ -77,21 +79,27 @@ class TripController extends AbstractController
      */
     #[Route('/{id}/edit', methods: ['PUT'])]
     #[Route('/{id}/edit-dates', name: "app_trip_edit-dates", methods: ['PUT'])]
-    public function editTrip(TripService $tripService, Request $request, ?Trip $trip): Response
+    public function editTrip(TripService $tripService, Request $request, ?Trip $trip, TripParticipantRepository $tripParticipantRepository): Response
     {
-        if($request->get('_route') == "app_trip_edit-dates"){
-            $f = $tripService->editTripDates($trip, $request);
-        } else {
-            $f = $tripService->editTripNameAndDescription($trip, $request);
-        }
-
         if (!$trip) {
             return $this->json("trip not found", Response::HTTP_NOT_FOUND);
         }
-        if ($this->getUser() !== $trip->getOwner()) {
-            return $this->json("access denied", Response::HTTP_FORBIDDEN);
+
+        if ($request->get('_route') == "app_trip_edit-dates") {
+            $calledFunction = $tripService->editTripDates($trip, $request);
+        } else {
+            $calledFunction = $tripService->editTripNameAndDescription($trip, $request);
         }
-        $editedTrip = $f;
+
+        $participant = $tripParticipantRepository->findOneParticipant($this->getUser(), $trip);
+        switch ($participant):
+            case null:
+                return $this->json("access denied", Response::HTTP_FORBIDDEN);
+            case $participant->getRole() == ParticipantStatus::VIEWER:
+                return $this->json("permissions not granted", Response::HTTP_FORBIDDEN);
+        endswitch;
+
+        $editedTrip = $calledFunction;
         return $this->json($editedTrip, Response::HTTP_OK, [], ['groups' => 'trip:read']);
     }
 
@@ -112,7 +120,7 @@ class TripController extends AbstractController
                 return $this->json("trip with id " . $tripId . " not found", Response::HTTP_NOT_FOUND);
             }
             if ($trip->getOwner() !== $this->getUser()) {
-                return $this->json("access denied to trip with id " . $tripId, 403);
+                return $this->json("access denied to trip with id " . $tripId, Response::HTTP_FORBIDDEN);
             }
             $tripService->deleteTrip($trip);
         }
@@ -132,7 +140,7 @@ class TripController extends AbstractController
             return $this->json("trip not found", Response::HTTP_NOT_FOUND);
         }
         if ($trip->getOwner() !== $this->getUser()) {
-            return $this->json("access denied", 403);
+            return $this->json("access denied", Response::HTTP_FORBIDDEN);
         }
         $tripService->deleteTrip($trip);
         return $this->json("trip successfully deleted", Response::HTTP_OK);
@@ -151,6 +159,10 @@ class TripController extends AbstractController
         if (!$trip) {
             return $this->json("trip not found", Response::HTTP_NOT_FOUND);
         }
+        if($this->getUser() !== $trip->getOwner()) {
+            return $this->json("access denied", Response::HTTP_FORBIDDEN);
+        }
+
         $response = $tripService->addPeopleToTrip($trip, $request, $this->getUser());
         return $this->json($response); // MODIF RETURN DANS SERVICE
     }

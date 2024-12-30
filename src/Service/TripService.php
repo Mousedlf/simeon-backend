@@ -37,7 +37,12 @@ class TripService
      */
     public function getTripsOfUser(User $user): array
     {
-        return $this->tripRepository->findByUser($user);
+        $a =$this->tripParticipantRepository->findByUser($user);
+        $trips = [];
+        foreach($a as $participant){
+            $trips[] = $participant->getTrip();
+        }
+        return $trips;
     }
 
     /**

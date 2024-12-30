@@ -16,20 +16,19 @@ class TripParticipantRepository extends ServiceEntityRepository
         parent::__construct($registry, TripParticipant::class);
     }
 
-//    /**
-//     * @return TripParticipant[] Returns an array of TripParticipant objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->andWhere('t.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('t.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * @return TripParticipant[] Returns an array of TripParticipant objects
+     */
+    public function findByUser($user): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.participant = :u')
+            ->setParameter('u', $user)
+            ->orderBy('t.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 
     public function findOneParticipant($user, $trip): ?TripParticipant
     {
