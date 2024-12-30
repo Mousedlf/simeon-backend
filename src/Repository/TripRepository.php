@@ -26,8 +26,7 @@ class TripRepository extends ServiceEntityRepository
             ->setParameter('user', $user)
             ->orderBy('t.id', 'ASC')
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
     }
 
     public function findOneByName($name): ?Trip
@@ -36,7 +35,8 @@ class TripRepository extends ServiceEntityRepository
             ->andWhere('t.name = :name')
             ->setParameter('name', $name)
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getOneOrNullResult();
     }
+
+
 }

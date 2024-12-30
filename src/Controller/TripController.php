@@ -16,19 +16,39 @@ class TripController extends AbstractController
 {
     /**
      * Get all trips of a user is he is public or if it's the current user.
-     * @param User $user
+     * @param User|null $user
      * @param TripService $tripService
      * @return Response
      */
-    #[Route('/all/{id}', methods:['GET'])]
-    public function getAllTripsOfUser(User $user, TripService $tripService): Response
+    #[Route('/all/{id}', methods: ['GET'])]
+    public function getAllTripsOfUser(?User $user, TripService $tripService): Response
     {
-        if($user->isPublic() OR $user === $this->getUser()){
+        if (!$user) {
+            return $this->json("User not found", Response::HTTP_NOT_FOUND);
+        }
+        if ($user->isPublic() or $user === $this->getUser()) {
             $trips = $tripService->getTripsOfUser($user);
             return $this->json($trips, 403, [], ['groups' => 'trip:read']);
         } else {
-            return $this->json("access denied", 403);
+            return $this->json("access denied", Response::HTTP_FORBIDDEN);
         }
+    }
+
+    /**
+     * Get one trip.
+     * @param Trip|null $trip
+     * @param TripRepository $tripRepository
+     * @return Response
+     */
+    #[Route('/{id}', methods: ['GET'])]
+    public function getOneTrip(?Trip $trip, TripRepository $tripRepository): Response
+    {
+        if (!$trip) {
+            return $this->json("trip not found", Response::HTTP_NOT_FOUND);
+        }
+        // restrictions?
+
+        return $this->json($trip, Response::HTTP_OK, [], ['groups' => 'trip:read']);
     }
 
     /**
@@ -37,71 +57,122 @@ class TripController extends AbstractController
      * @param Request $request
      * @return Response
      */
-    #[Route('/new', methods:['POST'])]
+    #[Route('/new', methods: ['POST'])]
     public function createTrip(
         TripService $tripService,
-        Request $request,
+        Request     $request,
     ): Response
     {
-       $trip = $tripService->createTrip($this->getUser(), $request);
-       return $this->json($trip, Response::HTTP_CREATED, [], ['groups' => 'trip:read']);
+        $trip = $tripService->createTrip($this->getUser(), $request);
+        return $this->json($trip, Response::HTTP_CREATED, [], ['groups' => 'trip:read']);
 
     }
 
     /**
-     * Edit a trip.
+     * Edit a trip (textual information or dates).
      * @param TripService $tripService
      * @param Request $request
-     * @param Trip $trip
+     * @param Trip|null $trip
      * @return Response
      */
-    #[Route('/{id}/edit', methods:['PUT'])]
-    public function editTrip(TripService $tripService, Request $request, Trip $trip): Response
+    #[Route('/{id}/edit', methods: ['PUT'])]
+    #[Route('/{id}/edit-dates', name: "app_trip_edit-dates", methods: ['PUT'])]
+    public function editTrip(TripService $tripService, Request $request, ?Trip $trip): Response
     {
-        if($this->getUser() !== $trip->getOwner()){
-            return $this->json("access denied", 403);
+        if($request->get('_route') == "app_trip_edit-dates"){
+            $f = $tripService->editTripDates($trip, $request);
+        } else {
+            $f = $tripService->editTripNameAndDescription($trip, $request);
         }
-        $editedTrip = $tripService->editTripNameAndDescription($trip, $request);
-        return $this->json($editedTrip, Response::HTTP_OK, [], ['groups' => 'trip:read']);
-    }
 
-    /**
-     * Delete a trip.
-     * @param Trip $trip
-     * @param TripService $tripService
-     * @return Response
-     */
-    #[Route('/{id}/delete', methods:['DELETE'])]
-    public function deleteTrip(?Trip $trip, TripService $tripService):Response
-    {
-        if($trip->getOwner() !== $this->getUser()){
-            return $this->json("access denied", 403);
+        if (!$trip) {
+            return $this->json("trip not found", Response::HTTP_NOT_FOUND);
         }
-        $tripService->deleteTrip($trip);
-        return $this->json("trip sucessfully deleted", Response::HTTP_OK);
+        if ($this->getUser() !== $trip->getOwner()) {
+            return $this->json("access denied", Response::HTTP_FORBIDDEN);
+        }
+        $editedTrip = $f;
+        return $this->json($editedTrip, Response::HTTP_OK, [], ['groups' => 'trip:read']);
     }
 
     /**
      * Delete multiple trips.
      * @param TripService $tripService
      * @param Request $request
+     * @param TripRepository $tripRepository
      * @return Response
      */
-    #[Route('/delete', methods:['DELETE'])]
-    public function deleteTrips(TripService $tripService, Request $request, TripRepository $tripRepository):Response
+    #[Route('/delete', methods: ['DELETE'])]
+    public function deleteTrips(TripService $tripService, Request $request, TripRepository $tripRepository): Response
     {
         $data = $request->toArray();
         foreach ($data["tripIds"] as $tripId) {
             $trip = $tripRepository->findOneBy(["id" => $tripId]);
-            if(!$trip){
-                return $this->json("trip with id " .$tripId ." not found", Response::HTTP_NOT_FOUND);
+            if (!$trip) {
+                return $this->json("trip with id " . $tripId . " not found", Response::HTTP_NOT_FOUND);
             }
-            if($trip->getOwner() !== $this->getUser()){
-                return $this->json("access denied to trip with id ".$tripId, 403);
+            if ($trip->getOwner() !== $this->getUser()) {
+                return $this->json("access denied to trip with id " . $tripId, 403);
             }
             $tripService->deleteTrip($trip);
         }
-        return $this->json("trips sucessfully deleted", Response::HTTP_OK);
+        return $this->json("trips successfully deleted", Response::HTTP_OK);
+    }
+
+    /**
+     * Delete a trip.
+     * @param Trip|null $trip
+     * @param TripService $tripService
+     * @return Response
+     */
+    #[Route('/{id}/delete', methods: ['DELETE'])]
+    public function deleteTrip(?Trip $trip, TripService $tripService): Response
+    {
+        if (!$trip) {
+            return $this->json("trip not found", Response::HTTP_NOT_FOUND);
+        }
+        if ($trip->getOwner() !== $this->getUser()) {
+            return $this->json("access denied", 403);
+        }
+        $tripService->deleteTrip($trip);
+        return $this->json("trip successfully deleted", Response::HTTP_OK);
+    }
+
+    /**
+     * Add participants to your trip.
+     * @param Trip|null $trip
+     * @param Request $request
+     * @param TripService $tripService
+     * @return Response
+     */
+    #[Route('/{id}/add-people', methods: ['POST'])]
+    public function addPeopleToTrip(?Trip $trip, Request $request, TripService $tripService): Response
+    {
+        if (!$trip) {
+            return $this->json("trip not found", Response::HTTP_NOT_FOUND);
+        }
+        $response = $tripService->addPeopleToTrip($trip, $request, $this->getUser());
+        return $this->json($response); // MODIF RETURN DANS SERVICE
+    }
+
+    /**
+     * Remove people from your trip.
+     * @param Trip|null $trip
+     * @param Request $request
+     * @param TripService $tripService
+     * @return Response
+     */
+    #[Route('/{id}/remove-people', methods: ['POST'])]
+    public function removePeopleFromTrip(?Trip $trip, Request $request, TripService $tripService): Response
+    {
+        if (!$trip) {
+            return $this->json("trip not found", Response::HTTP_NOT_FOUND);
+        }
+        if ($trip->getOwner() !== $this->getUser()) {
+            return $this->json("access denied", Response::HTTP_FORBIDDEN);
+        }
+        $response = $tripService->removePeopleFromTrip($trip, $request);
+        return $this->json($response);
     }
 
 }

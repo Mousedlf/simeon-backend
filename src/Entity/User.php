@@ -44,7 +44,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:read','users:read', 'trip:read'])]
+    #[Groups(['user:read','users:read', 'trip:read','invites:read'])]
     private ?string $username = null;
 
     #[ORM\Column]
@@ -55,10 +55,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var Collection<int, Trip>
      */
     #[ORM\OneToMany(targetEntity: Trip::class, mappedBy: 'owner', orphanRemoval: true)]
+    private Collection $createdTrips;
+
+    /**
+     * @var Collection<int, TripInvite>
+     */
+    #[ORM\OneToMany(targetEntity: TripInvite::class, mappedBy: 'sender', orphanRemoval: true)]
+    private Collection $sentTripInvites;
+
+    /**
+     * @var Collection<int, TripInvite>
+     */
+    #[ORM\OneToMany(targetEntity: TripInvite::class, mappedBy: 'recipient', orphanRemoval: true)]
+    private Collection $receivedTripInvites;
+
+    /**
+     * @var Collection<int, TripParticipant>
+     */
+    #[ORM\OneToMany(targetEntity: TripParticipant::class, mappedBy: 'participant', orphanRemoval: true)]
     private Collection $trips;
 
     public function __construct()
     {
+        $this->createdTrips = new ArrayCollection();
+        $this->sentTripInvites = new ArrayCollection();
+        $this->receivedTripInvites = new ArrayCollection();
         $this->trips = new ArrayCollection();
     }
 
@@ -176,27 +197,117 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Trip>
      */
-    public function getTrips(): Collection
+    public function getCreatedTrips(): Collection
     {
-        return $this->trips;
+        return $this->createdTrips;
     }
 
-    public function addTrip(Trip $trip): static
+    public function addCreatedTrip(Trip $trip): static
     {
-        if (!$this->trips->contains($trip)) {
-            $this->trips->add($trip);
+        if (!$this->createdTrips->contains($trip)) {
+            $this->createdTrips->add($trip);
             $trip->setOwner($this);
         }
 
         return $this;
     }
 
-    public function removeTrip(Trip $trip): static
+    public function removeCreatedTrip(Trip $trip): static
     {
-        if ($this->trips->removeElement($trip)) {
+        if ($this->createdTrips->removeElement($trip)) {
             // set the owning side to null (unless already changed)
             if ($trip->getOwner() === $this) {
                 $trip->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+   /**
+     * @return Collection<int, TripInvite>
+     */
+    public function getSentTripInvites(): Collection
+    {
+        return $this->sentTripInvites;
+    }
+
+    public function addSentTripInvite(TripInvite $sentTripInvite): static
+    {
+        if (!$this->sentTripInvites->contains($sentTripInvite)) {
+            $this->sentTripInvites->add($sentTripInvite);
+            $sentTripInvite->setSender($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSentTripInvite(TripInvite $sentTripInvite): static
+    {
+        if ($this->sentTripInvites->removeElement($sentTripInvite)) {
+            // set the owning side to null (unless already changed)
+            if ($sentTripInvite->getSender() === $this) {
+                $sentTripInvite->setSender(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TripInvite>
+     */
+    public function getReceivedTripInvites(): Collection
+    {
+        return $this->receivedTripInvites;
+    }
+
+    public function addReceivedTripInvite(TripInvite $receivedTripInvite): static
+    {
+        if (!$this->receivedTripInvites->contains($receivedTripInvite)) {
+            $this->receivedTripInvites->add($receivedTripInvite);
+            $receivedTripInvite->setRecipient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReceivedTripInvite(TripInvite $receivedTripInvite): static
+    {
+        if ($this->receivedTripInvites->removeElement($receivedTripInvite)) {
+            // set the owning side to null (unless already changed)
+            if ($receivedTripInvite->getRecipient() === $this) {
+                $receivedTripInvite->setRecipient(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TripParticipant>
+     */
+    public function getTrips(): Collection
+    {
+        return $this->trips;
+    }
+
+    public function addTrip(TripParticipant $trip): static
+    {
+        if (!$this->trips->contains($trip)) {
+            $this->trips->add($trip);
+            $trip->setParticipant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTrip(TripParticipant $trip): static
+    {
+        if ($this->trips->removeElement($trip)) {
+            // set the owning side to null (unless already changed)
+            if ($trip->getParticipant() === $this) {
+                $trip->setParticipant(null);
             }
         }
 
