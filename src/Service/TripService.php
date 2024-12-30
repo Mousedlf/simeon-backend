@@ -57,7 +57,7 @@ class TripService
     {
         $trip = $this->serializer->deserialize($request->getContent(), Trip::class, 'json');
         $trip->setOwner($user);
-        //$trip->setDays();
+        $trip->setPublic(false);
 
         $participant = new TripParticipant();
         $participant->setTrip($trip);
@@ -70,6 +70,8 @@ class TripService
         if ($trip->getStartDate() > $trip->getEndDate()) {
             return "start date must be after end date";
         }
+        $nbDays =($trip->getStartDate())->diff($trip->getEndDate())->days + 1;
+        $trip->setDays($nbDays);
 
         $existingTrip = $this->tripRepository->findOneByName($trip->getName());
         if ($existingTrip) {

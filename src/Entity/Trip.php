@@ -56,6 +56,9 @@ class Trip
     #[Groups(['trip:read'])]
     private Collection $participants;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $public = null;
+
     public function __construct()
     {
         $this->sentInvites = new ArrayCollection();
@@ -196,6 +199,18 @@ class Trip
                 $participant->setTrip(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isPublic(): ?bool
+    {
+        return $this->public;
+    }
+
+    public function setPublic(?bool $public): static
+    {
+        $this->public = $public;
 
         return $this;
     }
