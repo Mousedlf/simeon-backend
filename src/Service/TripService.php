@@ -14,7 +14,9 @@ use App\Repository\TripRepository;
 use App\Repository\UserRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use http\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class TripService
@@ -104,6 +106,12 @@ class TripService
         return $trip;
     }
 
+    /**
+     * Edit trip dates.
+     * @param Trip $trip
+     * @param Request $request
+     * @return Trip|string
+     */
     public function editTripDates(Trip $trip, Request $request): Trip|string
     {
         $editedTrip = $this->serializer->deserialize($request->getContent(), Trip::class, 'json');
@@ -198,36 +206,57 @@ class TripService
      * Remove participant(s) of a trip.
      * @param Trip $trip
      * @param Request $request
-     * @return void
+     * @return Response
      */
-    public function removePeopleFromTrip(Trip $trip, Request $request): string
+    public function removePeopleFromTrip(Trip $trip, Request $request): Response
     {
         $data = $request->toArray();
         foreach ($data['peopleIds'] as $potentialParticipantId) {
             $participant = $this->tripParticipantRepository->findOneParticipant($potentialParticipantId, $trip);
             switch ($participant):
                 case null:
-                    return "no participant with id " . $potentialParticipantId . " found";
+                    return new Response("no participant with id " . $potentialParticipantId . " found", Response::HTTP_BAD_REQUEST);
                 case $participant->getRole() == ParticipantStatus::OWNER:
-                    return "can not remove yourself. You can only delete the trip ?"; // choisir ce qu'il se passe si admin part
+                    return new Response("can not remove yourself. You can only delete the trip ?", Response::HTTP_BAD_REQUEST); // choisir ce qu'il se passe si admin part
             endswitch;
 
             $trip->removeParticipant($participant);
             $this->manager->persist($trip);
         }
         $this->manager->flush();
-        return "people successfully removed";
+        return new Response("people successfully removed", Response::HTTP_OK);
     }
 
     /**
      * Manage roles of participants.
-     * @param User $user
      * @param Trip $trip
      * @param Request $request
-     * @return void
+     * @return Response
      */
-    public function changeStatusOfParticipant(User $user, Trip $trip, Request $request): void
+    public function changeStatusOfParticipants(Trip $trip, Request $request): Response|string
     {
+        $data = $request->toArray();
+        foreach ($data["participants"] as $potentialParticipant) {
+            $participant = $this->tripParticipantRepository->findOneParticipant($potentialParticipant["userId"], $trip);
+
+            if(!$participant){
+                return new Response("no participant with id " . $potentialParticipant["userId"] . " found", Response::HTTP_BAD_REQUEST);
+            }
+            if($participant->getRole() == ParticipantStatus::OWNER){
+                return "en train de changer ton role de propriétaire"; // comment traiter ce cas ?
+            }
+            if($potentialParticipant['statusId'] !== 1 || $potentialParticipant['statusId'] !== 2){
+                return "invalid statusId provided";
+            }
+            match ($potentialParticipant['statusId']) {
+                1 => $participant->setRole(ParticipantStatus::VIEWER),
+                2 => $participant->setRole(ParticipantStatus::EDITOR),
+            };
+
+            $this->manager->persist($participant);
+        }
+        $this->manager->flush();
+        return "statuses successfully changed";
 
     }
 }

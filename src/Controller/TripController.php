@@ -187,4 +187,19 @@ class TripController extends AbstractController
         return $this->json($response);
     }
 
+    #[Route('/{id}/change-permissions', methods: ['POST'])]
+    public function changeParticipantPermissions(?Trip $trip, Request $request, TripService $tripService): Response
+    {
+     if (!$trip) {
+         return $this->json("trip not found", Response::HTTP_NOT_FOUND);
+     }
+     if ($trip->getOwner() !== $this->getUser()) {
+         return $this->json("access denied", Response::HTTP_FORBIDDEN);
+     }
+
+     $response =$tripService->changeStatusOfParticipants($trip, $request);
+    return $this->json($response, Response::HTTP_OK);
+
+    }
+
 }
