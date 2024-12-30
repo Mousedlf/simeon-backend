@@ -36,7 +36,7 @@ class UserController extends AbstractController
      * @param EntityManagerInterface $manager
      * @return Response (User)
      */
-    #[Route('/{id}/edit/visibility', methods: ['GET'])]
+    #[Route('/{id}/edit-visibility', methods: ['GET'])]
     public function editUserVisibility(User $user, EntityManagerInterface $manager): Response
     {
         $currentUser = $this->getUser();
@@ -63,7 +63,7 @@ class UserController extends AbstractController
      * @param UserRepository $userRepository
      * @return Response (string)
      */
-    #[Route('/{id}/edit/username', methods: ['POST'])]
+    #[Route('/{id}/edit-username', methods: ['POST'])]
     public function editUserUsername(
         User $user,
         EntityManagerInterface $manager,
