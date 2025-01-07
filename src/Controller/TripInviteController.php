@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\TripInvite;
 use App\Entity\User;
 use App\Service\TripInviteService;
+use App\Service\TripService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -68,5 +69,24 @@ class TripInviteController extends AbstractController
         }
         $response = $tripInviteService->declineInvite($invite);
         return $this->json($response, Response::HTTP_OK);
+    }
+
+    /**
+     * Retract a trip invite.
+     * @param TripInviteService $tripInviteService
+     * @param TripInvite|null $invite
+     * @return Response
+     */
+    #[Route('/{id}/retract', methods: ['GET'])]
+    public function retractTripInvite(TripInviteService $tripInviteService, ?TripInvite $invite): Response
+    {
+        if (!$invite) {
+            return $this->json("Invite not found", Response::HTTP_NOT_FOUND);
+        }
+        if($invite->getSender() !== $this->getUser()) {
+            return $this->json("Access denied", Response::HTTP_FORBIDDEN);
+        }
+        $res = $tripInviteService->retractInvite($invite);
+        return $this->json($res, Response::HTTP_OK);
     }
 }

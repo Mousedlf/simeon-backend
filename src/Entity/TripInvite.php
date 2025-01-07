@@ -15,7 +15,7 @@ class TripInvite
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['invites:read'])]
+    #[Groups(['invites:read', 'trip:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -29,13 +29,14 @@ class TripInvite
 
     #[ORM\ManyToOne(inversedBy: 'receivedTripInvites')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['trip:read'])]
     private ?User $recipient = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'sentInvites')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete:"CASCADE")]
     #[Groups(['invites:read'])]
     private ?Trip $trip = null;
 
@@ -43,7 +44,7 @@ class TripInvite
     private ?ParticipantStatus $role = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['invites:read'])]
+    #[Groups(['invites:read', 'trip:read'])]
     private ?InviteStatus $status = null;
 
     public function getId(): ?int

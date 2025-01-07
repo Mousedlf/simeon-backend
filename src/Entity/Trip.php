@@ -46,13 +46,14 @@ class Trip
     /**
      * @var Collection<int, TripInvite>
      */
-    #[ORM\OneToMany(targetEntity: TripInvite::class, mappedBy: 'trip', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: TripInvite::class, mappedBy: 'trip', cascade: ["remove"], orphanRemoval: true)]
+    #[Groups(['trip:read'])]
     private Collection $sentInvites;
 
     /**
      * @var Collection<int, TripParticipant>
      */
-    #[ORM\OneToMany(targetEntity: TripParticipant::class, mappedBy: 'trip', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: TripParticipant::class, mappedBy: 'trip', cascade: ["remove"], orphanRemoval: true)]
     #[Groups(['trip:read'])]
     private Collection $participants;
 
@@ -62,7 +63,8 @@ class Trip
     /**
      * @var Collection<int, DayOfTrip>
      */
-    #[ORM\OneToMany(targetEntity: DayOfTrip::class, mappedBy: 'trip', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: DayOfTrip::class, mappedBy: 'trip', cascade: ["remove"], orphanRemoval: true)]
+    #[Groups(['trip:read'])]
     private Collection $daysOfTrip;
 
     public function __construct()

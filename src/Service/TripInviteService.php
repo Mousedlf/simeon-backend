@@ -5,7 +5,6 @@ namespace App\Service;
 use App\Entity\TripInvite;
 use App\Entity\TripParticipant;
 use App\Enum\InviteStatus;
-use App\Enum\TripStatus;
 use App\Repository\TripInviteRepository;
 use App\Repository\TripRepository;
 use App\Repository\UserRepository;
@@ -49,6 +48,11 @@ class TripInviteService
         return "invite accepted";
     }
 
+    /**
+     * Decline a trip invite.
+     * @param TripInvite $invite
+     * @return string
+     */
     public function declineInvite(TripInvite $invite):string
     {
         $invite->setStatus(InviteStatus::DECLINED);
@@ -56,6 +60,26 @@ class TripInviteService
         $this->manager->flush();
 
         return "invite declined";
+    }
+
+    /**
+     * Retract a pending trip invite.
+     * @param TripInvite $invite
+     * @return string
+     */
+    public function retractInvite(TripInvite $invite):string
+    {
+        $inviteStatus = $invite->getStatus();
+        switch($inviteStatus){
+            case InviteStatus::ACCEPTED:
+                return "invite already accepted";
+            case InviteStatus::DECLINED:
+                return "invite already declined";
+        }
+
+        $this->manager->remove($invite);
+        $this->manager->flush();
+        return "invite retracted";
     }
 
 }
