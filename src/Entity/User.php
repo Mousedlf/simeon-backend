@@ -44,7 +44,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:read','users:read', 'trip:read','invites:read', 'expense:new', 'expense:index', 'conversation:read'])]
+    #[Groups(['user:read','users:read', 'trip:read','invites:read', 'expense:new', 'expense:index', 'conversation:read', 'message:read'])]
     private ?string $username = null;
 
     #[ORM\Column]

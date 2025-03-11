@@ -35,6 +35,7 @@ class Conversation
      * @var Collection<int, Message>
      */
     #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'conversation', orphanRemoval: true)]
+    #[Groups(['conversation:read'])]
     private Collection $messages;
 
     public function __construct()
