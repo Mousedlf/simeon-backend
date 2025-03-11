@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Conversation;
 use App\Entity\DayOfTrip;
 use App\Entity\Trip;
 use App\Entity\TripInvite;
@@ -67,6 +68,13 @@ class TripService
         $this->manager->persist($participant);
         $trip->addParticipant($participant);
 
+        $conversation = new Conversation();
+        $conversation->setName($trip->getName());
+        $conversation->addMember($participant);
+
+        $this->manager->persist($conversation);
+        $trip->setConversation($conversation);
+
         $createdTrips = $user->getCreatedTrips();
         foreach ($createdTrips as $createdTrip) {
             if ($createdTrip->getName() === $trip->getName()) {
@@ -95,7 +103,6 @@ class TripService
         $this->manager->persist($trip);
         $this->manager->flush();
 
-        dd($trip);
         return $trip;
     }
 
@@ -192,7 +199,7 @@ class TripService
                 } // --------------------------------------------------- SUPPRESSION des invitations accepted/declined au bout de combien de temps?
             }
 
-            $alreadyParticipating = $this->tripRepository->findOneByName($user, $trip);
+            $alreadyParticipating = $this->tripRepository->findOneByName($user);
             if ($alreadyParticipating) {
                 return "user " . $potentialUserId . " already part of the trip"; // RETURN R
             }
@@ -239,6 +246,10 @@ class TripService
                 case $participant->getRole() == ParticipantStatus::OWNER:
                     return new Response("can not remove yourself. You can only delete the trip ?", Response::HTTP_BAD_REQUEST); // choisir ce qu'il se passe si admin part
             endswitch;
+
+            $tripConversation = $trip->getConversation();
+            $tripConversation->removeMember($participant);
+            $this->manager->persist($tripConversation);
 
             $trip->removeParticipant($participant);
             $this->manager->persist($trip);

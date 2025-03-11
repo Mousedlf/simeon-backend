@@ -74,6 +74,9 @@ class Trip
     #[Groups(['expense:read'])]
     private Collection $expenses;
 
+    #[ORM\OneToOne(inversedBy: 'trip', cascade: ['persist', 'remove'])]
+    private ?Conversation $conversation = null;
+
     public function __construct()
     {
         $this->sentInvites = new ArrayCollection();
@@ -286,6 +289,18 @@ class Trip
                 $expense->setTrip(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getConversation(): ?Conversation
+    {
+        return $this->conversation;
+    }
+
+    public function setConversation(?Conversation $conversation): static
+    {
+        $this->conversation = $conversation;
 
         return $this;
     }

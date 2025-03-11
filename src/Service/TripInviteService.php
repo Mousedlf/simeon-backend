@@ -38,10 +38,15 @@ class TripInviteService
         $participant->setTrip($trip);
         $participant->setRole($invite->getRole());
         $participant->setParticipant($invite->getRecipient());
-        $this->manager->persist($participant);
 
+        $this->manager->persist($participant);
         $trip->addParticipant($participant);
         $this->manager->persist($trip);
+
+        $tripConversation = $trip->getConversation();
+        $tripConversation->addMember($participant);
+
+        $this->manager->persist($tripConversation);
 
         $this->manager->flush();
 

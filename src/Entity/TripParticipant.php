@@ -15,7 +15,7 @@ class TripParticipant
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['trip:read', 'expense:new'])]
+    #[Groups(['trip:read', 'expense:new', 'conversation:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'participants')]
@@ -24,11 +24,11 @@ class TripParticipant
 
     #[ORM\ManyToOne(inversedBy: 'trips')]
     #[ORM\JoinColumn(nullable: false, onDelete:"CASCADE")]
-    #[Groups(['trip:read', 'expense:new', 'expense:index'])]
+    #[Groups(['trip:read', 'expense:new', 'expense:index', 'conversation:read'])]
     private ?User $participant = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['trip:read'])]
+    #[Groups(['trip:read', 'conversation:read'])]
     private ?ParticipantStatus $role = null;
 
     /**
@@ -43,10 +43,17 @@ class TripParticipant
     #[ORM\OneToMany(targetEntity: Expense::class, mappedBy: 'paidBy')]
     private Collection $paidExpenses;
 
+    /**
+     * @var Collection<int, Conversation>
+     */
+    #[ORM\ManyToMany(targetEntity: Conversation::class, mappedBy: 'members')]
+    private Collection $conversations;
+
     public function __construct()
     {
         $this->sharedExpenses = new ArrayCollection();
         $this->paidExpenses = new ArrayCollection();
+        $this->conversations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -143,6 +150,33 @@ class TripParticipant
             if ($paidExpense->getPaidBy() === $this) {
                 $paidExpense->setPaidBy(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Conversation>
+     */
+    public function getConversations(): Collection
+    {
+        return $this->conversations;
+    }
+
+    public function addConversation(Conversation $conversation): static
+    {
+        if (!$this->conversations->contains($conversation)) {
+            $this->conversations->add($conversation);
+            $conversation->addMember($this);
+        }
+
+        return $this;
+    }
+
+    public function removeConversation(Conversation $conversation): static
+    {
+        if ($this->conversations->removeElement($conversation)) {
+            $conversation->removeMember($this);
         }
 
         return $this;
