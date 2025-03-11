@@ -38,5 +38,16 @@ class TripRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function findOneByNameAndUser($name, $user): ?Trip
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.name = :name')
+            ->andWhere('t.owner = :user')
+            ->setParameter('name', $name)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
 
 }

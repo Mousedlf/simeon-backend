@@ -75,6 +75,7 @@ class TripController extends AbstractController
      * @param TripService $tripService
      * @param Request $request
      * @param Trip|null $trip
+     * @param TripParticipantRepository $tripParticipantRepository
      * @return Response
      */
     #[Route('/{id}/edit', methods: ['PUT'])]
@@ -159,7 +160,7 @@ class TripController extends AbstractController
         if (!$trip) {
             return $this->json("trip not found", Response::HTTP_NOT_FOUND);
         }
-        if($this->getUser() !== $trip->getOwner()) {
+        if ($this->getUser() !== $trip->getOwner()) {
             return $this->json("access denied", Response::HTTP_FORBIDDEN);
         }
 
@@ -190,15 +191,15 @@ class TripController extends AbstractController
     #[Route('/{id}/change-permissions', methods: ['POST'])]
     public function changeParticipantPermissions(?Trip $trip, Request $request, TripService $tripService): Response
     {
-     if (!$trip) {
-         return $this->json("trip not found", Response::HTTP_NOT_FOUND);
-     }
-     if ($trip->getOwner() !== $this->getUser()) {
-         return $this->json("access denied", Response::HTTP_FORBIDDEN);
-     }
+        if (!$trip) {
+            return $this->json("trip not found", Response::HTTP_NOT_FOUND);
+        }
+        if ($trip->getOwner() !== $this->getUser()) {
+            return $this->json("access denied", Response::HTTP_FORBIDDEN);
+        }
 
-     $response =$tripService->changeStatusOfParticipants($trip, $request);
-    return $this->json($response, Response::HTTP_OK);
+        $response = $tripService->changeStatusOfParticipants($trip, $request);
+        return $this->json($response, Response::HTTP_OK);
 
     }
 

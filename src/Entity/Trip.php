@@ -15,11 +15,11 @@ class Trip
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['trip:read'])]
+    #[Groups(['trip:read','expense:new', 'expense:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['trip:read','invites:read'])]
+    #[Groups(['trip:read','invites:read','expense:new', 'expense:read'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'createdTrips')]
@@ -67,11 +67,19 @@ class Trip
     #[Groups(['trip:read'])]
     private Collection $daysOfTrip;
 
+    /**
+     * @var Collection<int, Expense>
+     */
+    #[ORM\OneToMany(targetEntity: Expense::class, mappedBy: 'trip', cascade: ["remove"], orphanRemoval: true)]
+    #[Groups(['expense:read'])]
+    private Collection $expenses;
+
     public function __construct()
     {
         $this->sentInvites = new ArrayCollection();
         $this->participants = new ArrayCollection();
         $this->daysOfTrip = new ArrayCollection();
+        $this->expenses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -224,9 +232,7 @@ class Trip
         return $this;
     }
 
-    /**
-     * @return Collection<int, DayOfTrip>
-     */
+
     public function getDaysOfTrip(): Collection
     {
         return $this->daysOfTrip;
@@ -248,6 +254,36 @@ class Trip
             // set the owning side to null (unless already changed)
             if ($daysOfTrip->getTrip() === $this) {
                 $daysOfTrip->setTrip(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Expense>
+     */
+    public function getExpenses(): Collection
+    {
+        return $this->expenses;
+    }
+
+    public function addExpense(Expense $expense): static
+    {
+        if (!$this->expenses->contains($expense)) {
+            $this->expenses->add($expense);
+            $expense->setTrip($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExpense(Expense $expense): static
+    {
+        if ($this->expenses->removeElement($expense)) {
+            // set the owning side to null (unless already changed)
+            if ($expense->getTrip() === $this) {
+                $expense->setTrip(null);
             }
         }
 

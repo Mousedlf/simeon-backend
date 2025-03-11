@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\DayOfTrip;
 use App\Entity\Trip;
 use App\Entity\TripInvite;
 use App\Entity\TripParticipant;
@@ -38,9 +39,9 @@ class TripService
      */
     public function getTripsOfUser(User $user): array
     {
-        $a =$this->tripParticipantRepository->findByUser($user);
+        $a = $this->tripParticipantRepository->findByUser($user);
         $trips = [];
-        foreach($a as $participant){
+        foreach ($a as $participant) {
             $trips[] = $participant->getTrip();
         }
         return $trips;
@@ -66,20 +67,35 @@ class TripService
         $this->manager->persist($participant);
         $trip->addParticipant($participant);
 
+        $createdTrips = $user->getCreatedTrips();
+        foreach ($createdTrips as $createdTrip) {
+            if ($createdTrip->getName() === $trip->getName()) {
+                return "trip by this name already created";
+            }
+        }
+        //$existingTrip = $this->tripRepository->findOneByNameAndUser($trip->getName(), $user);
+
         if ($trip->getStartDate() > $trip->getEndDate()) {
             return "start date must be after end date";
         }
-        $nbDays =($trip->getStartDate())->diff($trip->getEndDate())->days + 1;
+        $nbDays = ($trip->getStartDate())->diff($trip->getEndDate())->days + 1;
         $trip->setNbOfDays($nbDays);
 
-        $existingTrip = $this->tripRepository->findOneByName($trip->getName());
-        if ($existingTrip) {
-            return "trip by this name already exists";
+        for ($i = 0; $i <= $nbDays; $i++) {
+            $dayOfTrip = new DayOfTrip();
+            $dayOfTrip->setTrip($trip);
+            $date = $trip->getStartDate();
+            $date = $date->modify('+' . $i . ' day');
+            $dayOfTrip->setDate($date);
+
+            $this->manager->persist($dayOfTrip);
+            $trip->addDaysOfTrip($dayOfTrip);
         }
 
         $this->manager->persist($trip);
         $this->manager->flush();
 
+        dd($trip);
         return $trip;
     }
 
@@ -156,7 +172,7 @@ class TripService
 
         foreach ($data['people'] as $potentialPerson) {
 
-            $potentialUserId = $potentialPerson["potentialUserId"];
+            $potentialUserId = $potentialPerson["userId"];
             $user = $this->userRepository->findOneByStatusAndId(true, $potentialUserId);
             if ($potentialUserId == $currentUser->getId()) {
                 return "can not add yourself";
@@ -165,14 +181,16 @@ class TripService
             }
 
             $alreadyInvited = $this->tripInviteRepository->findOneByRecipientAndTrip($user, $trip);
-            switch ($alreadyInvited->getStatus()) {
-                case InviteStatus::ACCEPTED:
-                    return "user " . $potentialUserId . " already part of the trip"; // RETURN RESPONSE ?
-                case InviteStatus::DECLINED:
-                    return "user " . $potentialUserId . " declined invite to this trip";
-                case InviteStatus::PENDING:
-                    return "user " . $potentialUserId . " already invited to this trip";
-            } // --------------------------------------------------- SUPPRESSION des invitations accepted/declined au bout de combien de temps?
+            if($alreadyInvited){
+                switch ($alreadyInvited->getStatus()) {
+                    case InviteStatus::ACCEPTED:
+                        return "user " . $potentialUserId . " already part of the trip"; // RETURN RESPONSE ?
+                    case InviteStatus::DECLINED:
+                        return "user " . $potentialUserId . " declined invite to this trip";
+                    case InviteStatus::PENDING:
+                        return "user " . $potentialUserId . " already invited to this trip";
+                } // --------------------------------------------------- SUPPRESSION des invitations accepted/declined au bout de combien de temps?
+            }
 
             $alreadyParticipating = $this->tripRepository->findOneByName($user, $trip);
             if ($alreadyParticipating) {
@@ -241,13 +259,13 @@ class TripService
         foreach ($data["participants"] as $potentialParticipant) {
             $participant = $this->tripParticipantRepository->findOneParticipant($potentialParticipant["userId"], $trip);
 
-            if(!$participant){
+            if (!$participant) {
                 return new Response("no participant with id " . $potentialParticipant["userId"] . " found", Response::HTTP_BAD_REQUEST);
             }
-            if($participant->getRole() == ParticipantStatus::OWNER){
+            if ($participant->getRole() == ParticipantStatus::OWNER) {
                 return "en train de changer ton role de propriétaire"; // comment traiter ce cas ?
             }
-            if($potentialParticipant['statusId'] !== 1 || $potentialParticipant['statusId'] !== 2){
+            if ($potentialParticipant['statusId'] !== 1 || $potentialParticipant['statusId'] !== 2) {
                 return "invalid statusId provided";
             }
             match ($potentialParticipant['statusId']) {
