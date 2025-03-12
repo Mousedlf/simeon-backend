@@ -94,8 +94,7 @@ class ExpenseService
 
         if ($data['divide']) {
             foreach ($data['divideBetween'] as $id){
-                dump($id);
-                $participant = $this->tripParticipantRepository->findOneParticipant($id, $trip);
+                $participant = $this->tripParticipantRepository->findOneParticipant($id, $expense->getTrip());
                 if($participant && $participant !== $expense->getPaidBy()){
                     $expense->addDivideBetween($participant);
                 } else {
