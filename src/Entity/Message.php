@@ -34,7 +34,12 @@ class Message
     private ?TripParticipant $author = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['message:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\Column(options: ['default' => 'false'])]
+    #[Groups(['message:read'])]
+    private ?bool $pinned = null;
 
 
     public function getId(): ?int
@@ -98,6 +103,18 @@ class Message
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function isPinned(): ?bool
+    {
+        return $this->pinned;
+    }
+
+    public function setPinned(bool $pinned): static
+    {
+        $this->pinned = $pinned;
 
         return $this;
     }
