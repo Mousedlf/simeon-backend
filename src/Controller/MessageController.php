@@ -89,6 +89,36 @@ class MessageController extends AbstractController
 
     }
 
+    #[Route('/{convId}/message/{messageId}/delete', methods: ['DELETE'])]
+    public function deleteMessage(
+        #[MapEntity(id: 'convId')] ?Conversation $conversation,
+        #[MapEntity(id: 'messageId')] ?Message $message,
+        Request $request,
+        MessageService $messageService,
+    ): Response
+    {
+        if(!$conversation || !$message){
+            return $this->json(["conversation or message not found"], Response::HTTP_NOT_FOUND);
+        }
+
+        $members = $conversation->getMembers();
+        foreach ($members as $member) {
+            if($member->getParticipant() === $this->getUser()) {
+                $participant = $member;
+            }
+        }
+
+        if(!$participant){
+            return $this->json("access denied", Response::HTTP_FORBIDDEN);
+        }
+
+        if($message->getAuthor() !== $participant) {
+            return $this->json("access denied", Response::HTTP_FORBIDDEN);
+        }
+
+        return $this->json($messageService->deleteMessage($message), Response::HTTP_OK, [], ['groups' => ['message:read']]);
+    }
+
     /**
      * Pin a message.
      * @param Conversation|null $conversation

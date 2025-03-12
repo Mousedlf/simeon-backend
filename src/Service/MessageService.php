@@ -60,6 +60,18 @@ class MessageService
     }
 
     /**
+     * Delete a message.
+     * @param Message $message
+     * @return string
+     */
+    public function deleteMessage(Message $message): string
+    {
+        $this->manager->remove($message);
+        $this->manager->flush();
+        return "message successfully deleted";
+    }
+
+    /**
      * Pin a message.
      * @param Message $message
      * @return Message
