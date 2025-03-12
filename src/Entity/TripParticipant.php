@@ -24,7 +24,7 @@ class TripParticipant
 
     #[ORM\ManyToOne(inversedBy: 'trips')]
     #[ORM\JoinColumn(nullable: false, onDelete:"CASCADE")]
-    #[Groups(['trip:read', 'expense:new', 'expense:index', 'conversation:read', 'message:read'])]
+    #[Groups(['trip:read', 'expense:new', 'expense:index', 'conversation:read', 'message:read','participant:read'])]
     private ?User $participant = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -54,6 +54,10 @@ class TripParticipant
      */
     #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'author')]
     private Collection $messages;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['participant:read'])]
+    private ?float $budget = null;
 
     public function __construct()
     {
@@ -215,6 +219,18 @@ class TripParticipant
                 $message->setAuthor(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBudget(): ?float
+    {
+        return $this->budget;
+    }
+
+    public function setBudget(?float $budget): static
+    {
+        $this->budget = $budget;
 
         return $this;
     }

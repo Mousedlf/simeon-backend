@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Expense;
 use App\Entity\Trip;
+use App\Entity\TripParticipant;
 use App\Repository\DayOfTripRepository;
 use App\Repository\TripParticipantRepository;
 use App\Repository\TripRepository;
@@ -107,5 +108,45 @@ class ExpenseService
         $this->manager->flush();
 
         return $expense;
+    }
+
+    /**
+     * Set personal budget of a trip participant.
+     * @param Request $request
+     * @param TripParticipant $participant
+     * @return TripParticipant
+     */
+    public function setPersonalBudget(Request $request, TripParticipant $participant): TripParticipant
+    {
+        $data = $request->toArray();
+
+        $participant->setBudget($data['budget']);
+
+        $this->manager->persist($participant);
+        $this->manager->flush();
+
+        $this->updateGlobalBudget($participant->getTrip());
+
+        return $participant;
+    }
+
+    /**
+     * Update global budget when a personal budget of a trip participant is set.
+     * @param Trip $trip
+     * @return void
+     */
+    public function updateGlobalBudget(Trip $trip):void
+    {
+        $participants = $trip->getParticipants();
+        $budget = 0;
+
+        foreach ($participants as $participant){
+            $budget += $participant->getBudget();
+        }
+
+        $trip->setBudget($budget);
+
+        $this->manager->persist($trip);
+        $this->manager->flush();
     }
 }

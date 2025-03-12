@@ -77,6 +77,10 @@ class Trip
     #[ORM\OneToOne(inversedBy: 'trip', cascade: ['persist', 'remove'])]
     private ?Conversation $conversation = null;
 
+    #[ORM\Column(nullable: true)]
+    #[Groups(['trip:read'])]
+    private ?float $budget = null;
+
     public function __construct()
     {
         $this->sentInvites = new ArrayCollection();
@@ -301,6 +305,18 @@ class Trip
     public function setConversation(?Conversation $conversation): static
     {
         $this->conversation = $conversation;
+
+        return $this;
+    }
+
+    public function getBudget(): ?float
+    {
+        return $this->budget;
+    }
+
+    public function setBudget(?float $budget): static
+    {
+        $this->budget = $budget;
 
         return $this;
     }

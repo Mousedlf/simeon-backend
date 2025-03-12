@@ -293,4 +293,33 @@ class ExpenseController extends AbstractController
 
         return $this->json($res, Response::HTTP_OK, [], ['groups' => ['expense:new']]);
     }
+
+    /**
+     * Set personal budget | updates global budget.
+     * @param Trip|null $trip
+     * @param TripParticipantRepository $tripParticipantRepository
+     * @param ExpenseService $expenseService
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    #[Route('/trip/{trip}/budget', methods: ['PUT'])]
+    public function setPersonalBudget(
+        ?Trip $trip,
+        TripParticipantRepository $tripParticipantRepository,
+        ExpenseService $expenseService,
+        Request $request,
+    )
+    {
+        if (!$trip) {
+            return $this->json("trip not found", Response::HTTP_NOT_FOUND);
+        }
+        $participant = $tripParticipantRepository->findOneParticipant($this->getUser(), $trip);
+        if (!$participant) {
+            return $this->json("not part of this trip", Response::HTTP_FORBIDDEN);
+        }
+
+        return $this->json($expenseService->setPersonalBudget($request, $participant), Response::HTTP_OK, [], ['groups' => ['participant:read']]);
+    }
+
+
 }
