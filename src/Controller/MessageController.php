@@ -89,6 +89,14 @@ class MessageController extends AbstractController
 
     }
 
+    /**
+     * Pin a message.
+     * @param Conversation|null $conversation
+     * @param Message|null $message
+     * @param Request $request
+     * @param MessageService $messageService
+     * @return Response
+     */
     #[Route('/{convId}/message/{messageId}/pin', methods: ['GET'])]
     public function pinMessage(
         #[MapEntity(id: 'convId')] ?Conversation $conversation,
