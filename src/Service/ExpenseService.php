@@ -19,7 +19,7 @@ class ExpenseService
         public TripRepository            $tripRepository,
         public SerializerInterface       $serializer,
         public TripParticipantRepository $tripParticipantRepository,
-        public DayOfTripRepository $dayOfTripRepository,
+        public DayOfTripRepository       $dayOfTripRepository,
     )
     {
     }
@@ -37,7 +37,7 @@ class ExpenseService
         $data = $request->toArray();
 
         $expense->setTrip($trip);
-        $expense->setDayOfTrip($this->dayOfTripRepository->findOneBy(['id'=>$data['dayOfTrip']]));
+        $expense->setDayOfTrip($this->dayOfTripRepository->findOneBy(['id' => $data['dayOfTrip']]));
         $expense->setPaidBy($this->tripParticipantRepository->findOneParticipant($data['paidBy'], $trip));
         $expense->setName($data['name']);
         $expense->setSum($data['sum']);
@@ -46,9 +46,9 @@ class ExpenseService
         $expense->setDivide($data['divide']);
 
         if ($data['divide']) {
-            foreach ($data['divideBetween'] as $id){
+            foreach ($data['divideBetween'] as $id) {
                 $participant = $this->tripParticipantRepository->findOneParticipant($id, $trip);
-                if($participant && $participant !== $expense->getPaidBy()){
+                if ($participant && $participant !== $expense->getPaidBy()) {
                     $expense->addDivideBetween($participant);
                 } else {
                     return "participant " . $id . " not found to divide with OR paid full expense";
@@ -85,7 +85,7 @@ class ExpenseService
     {
         $data = $request->toArray();
 
-        $expense->setDayOfTrip($this->dayOfTripRepository->findOneBy(['id'=>$data['dayOfTrip']]));
+        $expense->setDayOfTrip($this->dayOfTripRepository->findOneBy(['id' => $data['dayOfTrip']]));
         $expense->setPaidBy($this->tripParticipantRepository->findOneParticipant($data['paidBy'], $expense->getTrip()));
         $expense->setName($data['name']);
         $expense->setSum($data['sum']);
@@ -94,9 +94,9 @@ class ExpenseService
         $expense->setDivide($data['divide']);
 
         if ($data['divide']) {
-            foreach ($data['divideBetween'] as $id){
+            foreach ($data['divideBetween'] as $id) {
                 $participant = $this->tripParticipantRepository->findOneParticipant($id, $expense->getTrip());
-                if($participant && $participant !== $expense->getPaidBy()){
+                if ($participant && $participant !== $expense->getPaidBy()) {
                     $expense->addDivideBetween($participant);
                 } else {
                     return "participant " . $id . " not found to divide with OR paid full expense";
@@ -135,12 +135,12 @@ class ExpenseService
      * @param Trip $trip
      * @return void
      */
-    public function updateGlobalBudget(Trip $trip):void
+    public function updateGlobalBudget(Trip $trip): void
     {
         $participants = $trip->getParticipants();
         $budget = 0;
 
-        foreach ($participants as $participant){
+        foreach ($participants as $participant) {
             $budget += $participant->getBudget();
         }
 

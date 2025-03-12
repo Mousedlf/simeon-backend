@@ -304,10 +304,10 @@ class ExpenseController extends AbstractController
      */
     #[Route('/trip/{trip}/budget', methods: ['PUT'])]
     public function setPersonalBudget(
-        ?Trip $trip,
+        ?Trip                     $trip,
         TripParticipantRepository $tripParticipantRepository,
-        ExpenseService $expenseService,
-        Request $request,
+        ExpenseService            $expenseService,
+        Request                   $request,
     )
     {
         if (!$trip) {
