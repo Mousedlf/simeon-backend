@@ -224,6 +224,13 @@ class ExpenseController extends AbstractController
         return $this->json($res, Response::HTTP_CREATED, [], ['groups' => 'expense:new']);
     }
 
+    /**
+     * Delete your personal expenses or common ones.
+     * @param Expense|null $expense
+     * @param ExpenseService $expenseService
+     * @param TripParticipantRepository $tripParticipantRepository
+     * @return Response
+     */
     #[Route('/{id}/delete', methods: ['DELETE'])]
     public function deleteExpense(
         ?Expense                  $expense,
@@ -236,7 +243,7 @@ class ExpenseController extends AbstractController
         }
 
         $participant = $tripParticipantRepository->findOneParticipant($this->getUser(), $expense->getTrip());
-        if(!$participant) {
+        if (!$participant) {
             return $this->json("access denied", Response::HTTP_FORBIDDEN);
         }
 
@@ -247,8 +254,43 @@ class ExpenseController extends AbstractController
                 break;
         }
 
-        return $this->json('lala pas supprimé');
+        return $this->json('expense successfully deleted', Response::HTTP_OK);
+    }
 
+    /**
+     * Edit your personal expenses or common ones.
+     * @param Expense|null $expense
+     * @param ExpenseService $expenseService
+     * @param TripParticipantRepository $tripParticipantRepository
+     * @param Request $request
+     * @return Response
+     */
+    #[Route('/{id}/edit', methods: ['PUT'])]
+    public function editExpense(
+        ?Expense                  $expense,
+        ExpenseService            $expenseService,
+        TripParticipantRepository $tripParticipantRepository,
+        Request                   $request,
+    ): Response
+    {
+        if (!$expense) {
+            return $this->json("expense not found", Response::HTTP_NOT_FOUND);
+        }
 
+        $participant = $tripParticipantRepository->findOneParticipant($this->getUser(), $expense->getTrip());
+        if (!$participant) {
+            return $this->json("access denied", Response::HTTP_FORBIDDEN);
+        }
+
+        switch ($participant) {
+            case $expense->isPersonal() && $expense->getPaidBy() === $participant:
+            case !$expense->isPersonal() :
+                $res = $expenseService->editExpense($request, $expense);
+                break;
+            default:
+                return $this->json("access denied", Response::HTTP_FORBIDDEN);
+        }
+
+        return $this->json($res, Response::HTTP_OK, [], ['groups' => ['expense:new']]);
     }
 }

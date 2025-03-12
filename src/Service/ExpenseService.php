@@ -25,7 +25,7 @@ class ExpenseService
 
 
     /**
-     * Add expense.
+     * Add an expense.
      * @param Request $request
      * @param Trip $trip
      * @return Expense|string
@@ -62,7 +62,7 @@ class ExpenseService
     }
 
     /**
-     * Delete expense.
+     * Delete an expense.
      * @param Expense $expense
      * @return string
      */
@@ -72,5 +72,41 @@ class ExpenseService
         $this->manager->flush();
 
         return "expense successfully deleted";
+    }
+
+    /**
+     * Edit an expense.
+     * @param Request $request
+     * @param Expense $expense
+     * @return Expense|string
+     */
+    public function editExpense(Request $request, Expense $expense): Expense|string
+    {
+        $data = $request->toArray();
+
+        $expense->setDayOfTrip($this->dayOfTripRepository->findOneBy(['id'=>$data['dayOfTrip']]));
+        $expense->setPaidBy($this->tripParticipantRepository->findOneParticipant($data['paidBy'], $expense->getTrip()));
+        $expense->setName($data['name']);
+        $expense->setSum($data['sum']);
+        $expense->setPaymentMethod($data['paymentMethod']);
+        $expense->setPersonal($data['personal']);
+        $expense->setDivide($data['divide']);
+
+        if ($data['divide']) {
+            foreach ($data['divideBetween'] as $id){
+                dump($id);
+                $participant = $this->tripParticipantRepository->findOneParticipant($id, $trip);
+                if($participant && $participant !== $expense->getPaidBy()){
+                    $expense->addDivideBetween($participant);
+                } else {
+                    return "participant " . $id . " not found to divide with OR paid full expense";
+                }
+            }
+        }
+
+        $this->manager->persist($expense);
+        $this->manager->flush();
+
+        return $expense;
     }
 }

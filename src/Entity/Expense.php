@@ -40,14 +40,14 @@ class Expense
     private ?Trip $trip = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['expense:new'])]
+    #[Groups(['expense:new','expense:index'])]
     private ?string $paymentMethod = null;
 
     /**
      * @var Collection<int, TripParticipant>
      */
-    #[ORM\ManyToMany(targetEntity: TripParticipant::class, inversedBy: 'personal')]
-    #[Groups(['expense:new'])]
+    #[ORM\ManyToMany(targetEntity: TripParticipant::class, inversedBy: 'personal', cascade: ['persist'])]
+    #[Groups(['expense:new','expense:index'])]
     private Collection $divideBetween;
 
     #[ORM\ManyToOne(inversedBy: 'paidExpenses')]
