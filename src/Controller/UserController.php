@@ -21,10 +21,10 @@ class UserController extends AbstractController
     }
 
     /**
-     * Get basic user informations.
+     * Get current user informations.
      * @return Response (User)
      */
-    #[Route('/{id}/info', methods: ['GET'])]
+    #[Route('/profile', methods: ['GET'])]
     public function indexUserInfo(): Response
     {
         return $this->json($this->getUser(), 200, [], ['groups' => 'user:read']);
