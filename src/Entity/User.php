@@ -75,12 +75,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: TripParticipant::class, mappedBy: 'participant', orphanRemoval: true)]
     private Collection $trips;
 
+    /**
+     * @var Collection<int, Category>
+     */
+    #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'ofUser')]
+    private Collection $custom_categories;
+
+    /**
+     * @var Collection<int, Document>
+     */
+    #[ORM\OneToMany(targetEntity: Document::class, mappedBy: 'ofUser')]
+    private Collection $documents;
+
     public function __construct()
     {
         $this->createdTrips = new ArrayCollection();
         $this->sentTripInvites = new ArrayCollection();
         $this->receivedTripInvites = new ArrayCollection();
         $this->trips = new ArrayCollection();
+        $this->custom_categories = new ArrayCollection();
+        $this->documents = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -308,6 +322,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($trip->getParticipant() === $this) {
                 $trip->setParticipant(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCustomCategories(): Collection
+    {
+        return $this->custom_categories;
+    }
+
+    public function addCustomCategory(Category $customCategory): static
+    {
+        if (!$this->custom_categories->contains($customCategory)) {
+            $this->custom_categories->add($customCategory);
+            $customCategory->setOfUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCustomCategory(Category $customCategory): static
+    {
+        if ($this->custom_categories->removeElement($customCategory)) {
+            // set the owning side to null (unless already changed)
+            if ($customCategory->getOfUser() === $this) {
+                $customCategory->setOfUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Document>
+     */
+    public function getDocuments(): Collection
+    {
+        return $this->documents;
+    }
+
+    public function addDocument(Document $document): static
+    {
+        if (!$this->documents->contains($document)) {
+            $this->documents->add($document);
+            $document->setOfUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocument(Document $document): static
+    {
+        if ($this->documents->removeElement($document)) {
+            // set the owning side to null (unless already changed)
+            if ($document->getOfUser() === $this) {
+                $document->setOfUser(null);
             }
         }
 

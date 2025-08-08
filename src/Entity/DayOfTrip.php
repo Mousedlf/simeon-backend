@@ -36,9 +36,16 @@ class DayOfTrip
     #[ORM\OneToMany(targetEntity: Expense::class, mappedBy: 'dayOfTrip', orphanRemoval: true)]
     private Collection $expenses;
 
+    /**
+     * @var Collection<int, TripActivity>
+     */
+    #[ORM\ManyToMany(targetEntity: TripActivity::class, mappedBy: 'day')]
+    private Collection $activities;
+
     public function __construct()
     {
         $this->expenses = new ArrayCollection();
+        $this->activities = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -107,6 +114,33 @@ class DayOfTrip
             if ($expense->getDayOfTrip() === $this) {
                 $expense->setDayOfTrip(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TripActivity>
+     */
+    public function getActivities(): Collection
+    {
+        return $this->activities;
+    }
+
+    public function addActivity(TripActivity $activity): static
+    {
+        if (!$this->activities->contains($activity)) {
+            $this->activities->add($activity);
+            $activity->addDay($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActivity(TripActivity $activity): static
+    {
+        if ($this->activities->removeElement($activity)) {
+            $activity->removeDay($this);
         }
 
         return $this;

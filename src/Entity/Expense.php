@@ -59,9 +59,14 @@ class Expense
     #[Groups(['expense:new', 'expense:index'])]
     private ?bool $personal = null;
 
+    #[ORM\ManyToOne(inversedBy: 'expenses')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?ExpenseCategory $category = null;
+
     public function __construct()
     {
         $this->divideBetween = new ArrayCollection();
+        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -188,4 +193,17 @@ class Expense
 
         return $this;
     }
+
+    public function getCategory(): ?ExpenseCategory
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?ExpenseCategory $category): static
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
 }
