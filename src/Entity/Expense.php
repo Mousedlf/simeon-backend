@@ -23,7 +23,7 @@ class Expense
 
     #[ORM\Column]
     #[Groups(['expense:new', 'expense:read', 'expense:index'])]
-    private ?float $sum = null;
+    private ?int $amountLocalCurrency = null;
 
     #[ORM\Column]
     #[Groups(['expense:new'])]
@@ -63,10 +63,18 @@ class Expense
     #[ORM\JoinColumn(nullable: false)]
     private ?ExpenseCategory $category = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $amountEuro = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $exchangeRate = null;
+
+    #[ORM\ManyToOne(inversedBy: 'expenses')]
+    private ?Currency $currency = null;
+
     public function __construct()
     {
         $this->divideBetween = new ArrayCollection();
-        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -86,14 +94,14 @@ class Expense
         return $this;
     }
 
-    public function getSum(): ?float
+    public function getAmountLocalCurrency(): ?float
     {
-        return $this->sum;
+        return $this->amountLocalCurrency;
     }
 
-    public function setSum(float $sum): static
+    public function setAmountLocalCurrency(float $amountLocalCurrency): static
     {
-        $this->sum = $sum;
+        $this->amountLocalCurrency = $amountLocalCurrency;
 
         return $this;
     }
@@ -202,6 +210,42 @@ class Expense
     public function setCategory(?ExpenseCategory $category): static
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    public function getAmountEuro(): ?int
+    {
+        return $this->amountEuro;
+    }
+
+    public function setAmountEuro(?int $amountEuro): static
+    {
+        $this->amountEuro = $amountEuro;
+
+        return $this;
+    }
+
+    public function getExchangeRate(): ?float
+    {
+        return $this->exchangeRate;
+    }
+
+    public function setExchangeRate(?float $exchangeRate): static
+    {
+        $this->exchangeRate = $exchangeRate;
+
+        return $this;
+    }
+
+    public function getCurrency(): ?Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(?Currency $currency): static
+    {
+        $this->currency = $currency;
 
         return $this;
     }
