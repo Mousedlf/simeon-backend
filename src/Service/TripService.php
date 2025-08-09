@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Conversation;
 use App\Entity\DayOfTrip;
+use App\Entity\Image;
 use App\Entity\Trip;
 use App\Entity\TripInvite;
 use App\Entity\TripParticipant;
@@ -16,9 +17,11 @@ use App\Repository\TripRepository;
 use App\Repository\UserRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
+use Vich\UploaderBundle\Handler\UploadHandler;
 
 class TripService
 {
@@ -29,6 +32,7 @@ class TripService
         public UserRepository            $userRepository,
         public TripInviteRepository      $tripInviteRepository,
         public TripParticipantRepository $tripParticipantRepository,
+        public UploadHandler             $uploadHandler,
     )
     {
     }
@@ -103,6 +107,34 @@ class TripService
         $this->manager->persist($trip);
         $this->manager->flush();
 
+        return $trip;
+    }
+
+    public function addImageToTrip(Trip $trip, Request $request): Trip|string
+    {
+        $uploadedFile = $request->files->get('image');
+
+        if (!$uploadedFile) {
+            return new JsonResponse(['error' => 'Aucun fichier image n\'a été fourni.'], 400);
+        }
+
+        if ($trip->getImage() !== null) {
+            $oldImage = $trip->getImage();
+            $this->uploadHandler->remove($oldImage, 'imageFile');
+            $this->manager->remove($oldImage);
+        }
+
+
+        $image = new Image();
+        $image->setImagefile($uploadedFile);
+        $image->setTrip($trip);
+        $this->manager->persist($image);
+
+        $trip->setImage($image);
+        $this->manager->persist($trip);
+        $this->manager->flush();
+
+dd($trip);
         return $trip;
     }
 

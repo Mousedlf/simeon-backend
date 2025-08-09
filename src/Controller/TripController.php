@@ -67,7 +67,17 @@ class TripController extends AbstractController
     {
         $trip = $tripService->createTrip($this->getUser(), $request);
         return $this->json($trip, Response::HTTP_CREATED, [], ['groups' => 'trip:read']);
+    }
 
+    #[Route('/{id}/image', methods: ['POST'])]
+    public function addImageToTrip(
+        ?Trip $trip,
+        TripService $tripService,
+        Request     $request,
+    ):Response
+    {
+        $trip = $tripService->addImageToTrip($trip, $request);
+        return $this->json($trip, Response::HTTP_CREATED, [], ['groups' => 'trip:read']);
     }
 
     /**

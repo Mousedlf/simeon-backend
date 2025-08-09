@@ -40,6 +40,7 @@ class Trip
     private ?\DateTimeImmutable $endDate = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['trip:read'])]
     private ?int $nbOfDays = null;
 
 
@@ -80,6 +81,10 @@ class Trip
     #[ORM\Column(nullable: true)]
     #[Groups(['trip:read'])]
     private ?float $budget = null;
+
+    #[ORM\OneToOne(inversedBy: 'trip', cascade: ['persist', 'remove'])]
+    #[Groups(['trip:read'])]
+    private ?Image $image = null;
 
     public function __construct()
     {
@@ -317,6 +322,18 @@ class Trip
     public function setBudget(?float $budget): static
     {
         $this->budget = $budget;
+
+        return $this;
+    }
+
+    public function getImage(): ?Image
+    {
+        return $this->image;
+    }
+
+    public function setImage(?Image $image): static
+    {
+        $this->image = $image;
 
         return $this;
     }
