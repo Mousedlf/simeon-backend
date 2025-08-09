@@ -89,7 +89,7 @@ class TripService
         $nbDays = ($trip->getStartDate())->diff($trip->getEndDate())->days + 1;
         $trip->setNbOfDays($nbDays);
 
-        for ($i = 0; $i <= $nbDays; $i++) {
+        for ($i = 0; $i < $nbDays; $i++) {
             $dayOfTrip = new DayOfTrip();
             $dayOfTrip->setTrip($trip);
             $date = $trip->getStartDate();

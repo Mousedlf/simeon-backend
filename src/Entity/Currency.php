@@ -14,22 +14,23 @@ class Currency
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['expense:new','expense:index'])]
+    #[Groups(['expense:new','expense:index','currency:index'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['expense:new','expense:index'])]
+    #[Groups(['expense:new','expense:index','currency:index' ])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['expense:new','expense:index'])]
+    #[Groups(['expense:new','expense:index','currency:index' ])]
     private ?string $code = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['expense:new','expense:index'])]
+    #[Groups(['expense:new','expense:index','currency:index' ])]
     private ?string $symbol = null;
 
     #[ORM\Column]
+    #[Groups(['expense:new','expense:index','currency:index' ])]
     private ?float $exchangeRate = null;
 
     /**
