@@ -134,7 +134,6 @@ class TripService
         $this->manager->persist($trip);
         $this->manager->flush();
 
-dd($trip);
         return $trip;
     }
 

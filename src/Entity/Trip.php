@@ -59,6 +59,7 @@ class Trip
     private Collection $participants;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['trip:read'])]
     private ?bool $public = null;
 
     /**
