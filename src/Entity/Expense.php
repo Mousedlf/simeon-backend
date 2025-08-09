@@ -23,10 +23,10 @@ class Expense
 
     #[ORM\Column]
     #[Groups(['expense:new', 'expense:read', 'expense:index'])]
-    private ?int $amountLocalCurrency = null;
+    private ?float $amountLocalCurrency = null;
 
     #[ORM\Column]
-    #[Groups(['expense:new'])]
+    #[Groups(['expense:new','expense:index'])]
     private ?bool $divide = null;
 
     #[ORM\ManyToOne(inversedBy: 'expenses')]
@@ -36,7 +36,7 @@ class Expense
 
     #[ORM\ManyToOne(inversedBy: 'expenses')]
     #[ORM\JoinColumn(nullable: false, onDelete:"CASCADE")]
-    #[Groups(['expense:new'])]
+    #[Groups(['expense:new','expense:index'])]
     private ?Trip $trip = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -61,15 +61,19 @@ class Expense
 
     #[ORM\ManyToOne(inversedBy: 'expenses')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['expense:new','expense:index'])]
     private ?ExpenseCategory $category = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $amountEuro = null;
+    #[Groups(['expense:new','expense:index'])]
+    private ?float $amountEuro = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['expense:new','expense:index'])]
     private ?float $exchangeRate = null;
 
     #[ORM\ManyToOne(inversedBy: 'expenses')]
+    #[Groups(['expense:new','expense:index'])]
     private ?Currency $currency = null;
 
     public function __construct()
@@ -214,12 +218,12 @@ class Expense
         return $this;
     }
 
-    public function getAmountEuro(): ?int
+    public function getAmountEuro(): ?float
     {
         return $this->amountEuro;
     }
 
-    public function setAmountEuro(?int $amountEuro): static
+    public function setAmountEuro(?float $amountEuro): static
     {
         $this->amountEuro = $amountEuro;
 

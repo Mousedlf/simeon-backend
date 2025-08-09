@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ORM\InheritanceType("SINGLE_TABLE")]
@@ -14,9 +15,11 @@ abstract class Category
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['expense:new','expense:index'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['expense:new','expense:index'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'custom_categories')]

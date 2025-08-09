@@ -5,7 +5,9 @@ namespace App\Service;
 use App\Entity\Expense;
 use App\Entity\Trip;
 use App\Entity\TripParticipant;
+use App\Repository\CurrencyRepository;
 use App\Repository\DayOfTripRepository;
+use App\Repository\ExpenseCategoryRepository;
 use App\Repository\TripParticipantRepository;
 use App\Repository\TripRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,6 +22,8 @@ class ExpenseService
         public SerializerInterface       $serializer,
         public TripParticipantRepository $tripParticipantRepository,
         public DayOfTripRepository       $dayOfTripRepository,
+        public ExpenseCategoryRepository $expenseCategoryRepository,
+        public CurrencyRepository        $currencyRepository,
     )
     {
     }
@@ -40,10 +44,23 @@ class ExpenseService
         $expense->setDayOfTrip($this->dayOfTripRepository->findOneBy(['id' => $data['dayOfTrip']]));
         $expense->setPaidBy($this->tripParticipantRepository->findOneParticipant($data['paidBy'], $trip));
         $expense->setName($data['name']);
-        $expense->setSum($data['sum']);
+        $expense->setAmountLocalCurrency($data['amountLocalCurrency']);
+        $expense->setCurrency($this->currencyRepository->findOneBy(['id' => $data['currency']]));
+
+        if ($expense->getCurrency()->getCode() === 'EUR') {
+            $expense->setAmountEuro($data['amountLocalCurrency']);
+            $expense->setExchangeRate(1.0);
+        } else {
+            $exchangeRate = $expense->getCurrency()->getExchangeRate();
+            $expense->setExchangeRate($exchangeRate);
+            $amountEuro = floatval(number_format($data['amountLocalCurrency'] * $exchangeRate, 2, '.', ' '));
+            $expense->setAmountEuro($amountEuro);
+        }
+
         $expense->setPaymentMethod($data['paymentMethod']);
         $expense->setPersonal($data['personal']);
         $expense->setDivide($data['divide']);
+        $expense->setCategory($this->expenseCategoryRepository->findOneBy(['id' => $data['category']]));
 
         if ($data['divide']) {
             foreach ($data['divideBetween'] as $id) {
