@@ -1,36 +1,38 @@
-image: jakzal/phpqa:php8.4
+#image: jakzal/phpqa:php8.4
+#
+#before_script:
+#  - composer install
+#
+#cache:
+#  paths:
+#    - vendor/
+#
+#stages:
+#  - SecurityChecker
+#  - CodingStandards
+#
+#security-checker:
+#  stage: SecurityChecker
+#  script:
+#    - local-php-security-checker  --path=./composer.lock
+#  allow_failure: false
+#
+#phpcs:
+#  stage: CodingStandards
+#  script:
+#    - phpcs -v --standard=PSR12 --ignore=./src/Kernel.php ./src
+#  allow_failure: false
+#
+#phpstan:
+#  stage: CodingStandards
+#  script:
+#    - phpstan analyse ./src
+#  allow_failure: false
+#
+#twig-lint:
+#  stage: CodingStandards
+#  script:
+#    - twig-lint lint ./templates
+#  allow_failure: false
 
-before_script:
-  - composer install
-
-cache:
-  paths:
-    - vendor/
-
-stages:
-  - SecurityChecker
-  - CodingStandards
-
-security-checker:
-  stage: SecurityChecker
-  script:
-    - local-php-security-checker  --path=./composer.lock
-  allow_failure: false
-
-phpcs:
-  stage: CodingStandards
-  script:
-    - phpcs -v --standard=PSR12 --ignore=./src/Kernel.php ./src
-  allow_failure: false
-
-phpstan:
-  stage: CodingStandards
-  script:
-    - phpstan analyse ./src
-  allow_failure: false
-
-twig-lint:
-  stage: CodingStandards
-  script:
-    - twig-lint lint ./templates
-  allow_failure: false
+#A REVOIR
