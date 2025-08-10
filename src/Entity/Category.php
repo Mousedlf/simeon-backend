@@ -15,14 +15,15 @@ abstract class Category
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['expense:new','expense:index'])]
+    #[Groups(['expense:new','expense:index', 'day:read', 'day:index', 'activity:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['expense:new','expense:index'])]
+    #[Groups(['expense:new','expense:index', 'day:read', 'day:index', 'activity:read'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'custom_categories')]
+    #[Groups(['expense:new','expense:index', 'day:read', 'day:index', 'activity:read'])]
     private ?User $ofUser = null;
 
     public function getId(): ?int

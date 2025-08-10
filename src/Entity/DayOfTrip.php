@@ -16,7 +16,7 @@ class DayOfTrip
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['trip:read', 'expense:new', 'expense:index'])]
+    #[Groups(['trip:read', 'expense:new', 'expense:index', 'day:read', 'day:index', 'activity:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'daysOfTrip')]
@@ -24,10 +24,11 @@ class DayOfTrip
     private ?Trip $trip = null;
 
     #[ORM\Column]
-    #[Groups(['trip:read', 'expense:new', 'expense:index'])]
+    #[Groups(['trip:read', 'expense:new', 'expense:index', 'day:read', 'day:index', 'activity:read'])]
     private ?DateTimeImmutable $date = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['trip:read', 'expense:new', 'expense:index', 'day:read', 'day:index', 'activity:read'])]
     private ?string $note = null;
 
     /**
@@ -40,6 +41,7 @@ class DayOfTrip
      * @var Collection<int, TripActivity>
      */
     #[ORM\ManyToMany(targetEntity: TripActivity::class, mappedBy: 'day')]
+    #[Groups(['trip:read','day:read','day:index','activity:read'])]
     private Collection $activities;
 
     public function __construct()

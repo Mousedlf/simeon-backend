@@ -5,7 +5,9 @@ namespace App\Entity;
 use App\Repository\TripActivityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: TripActivityRepository::class)]
 class TripActivity
@@ -13,33 +15,54 @@ class TripActivity
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['day:read', 'day:index', 'activity:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['day:read', 'day:index', 'activity:read'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['day:read', 'day:index', 'activity:read'])]
     private ?string $address = null;
 
     /**
      * @var Collection<int, DayOfTrip>
      */
     #[ORM\ManyToMany(targetEntity: DayOfTrip::class, inversedBy: 'activities')]
+    #[Groups(['activity:read'])]
     private Collection $day;
 
     #[ORM\ManyToOne(inversedBy: 'tripActivities')]
+    #[Groups(['day:read', 'day:index', 'activity:read'])]
     private ?ActivityCategory $category = null;
 
     /**
      * @var Collection<int, Document>
      */
     #[ORM\OneToMany(targetEntity: Document::class, mappedBy: 'tripActivity')]
+    #[Groups(['day:read', 'day:index', 'activity:read'])]
     private Collection $documents;
+
+    #[ORM\Column]
+    #[Groups(['day:read', 'day:index', 'activity:read'])]
+    private ?float $longitude = null;
+
+    #[ORM\Column]
+    #[Groups(['day:read', 'day:index', 'activity:read'])]
+    private ?float $latitude = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['day:read', 'day:index', 'activity:read'])]
+    private ?string $note = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['day:read', 'day:index', 'activity:read'])]
+    private ?int $sequence = null;
 
     public function __construct()
     {
         $this->day = new ArrayCollection();
-        $this->category = new ArrayCollection();
         $this->documents = new ArrayCollection();
     }
 
@@ -134,6 +157,54 @@ class TripActivity
                 $document->setTripActivity(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getLongitude(): ?float
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(float $longitude): static
+    {
+        $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    public function getLatitude(): ?float
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(float $latitude): static
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    public function setNote(?string $note): static
+    {
+        $this->note = $note;
+
+        return $this;
+    }
+
+    public function getSequence(): ?int
+    {
+        return $this->sequence;
+    }
+
+    public function setSequence(?int $sequence): static
+    {
+        $this->sequence = $sequence;
 
         return $this;
     }

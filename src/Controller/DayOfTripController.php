@@ -11,7 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/trip')]
+#[Route('/api/trip')]
 class DayOfTripController extends AbstractController
 {
     #[Route('/{id}/day/{dayId}', methods: ['GET'])]
@@ -25,13 +25,10 @@ class DayOfTripController extends AbstractController
         if(!$trip || !$dayOfTrip) {
             return $this->json('trip or day not found', Response::HTTP_NOT_FOUND);
         }
-        //$locations = $dayOfTrip->getLocations();
-        //$activities = $dayOfTrip->getActivities();
-        //$activities = $dayOfTrip->getActivities();
+        //$reservations
+        $activities = $dayOfTrip->getActivities();
 
-        $itinerary = 0; // ensemble ordonné chronologiquement
-
-        return $this->json($itinerary, Response::HTTP_OK, [],['groups' => ['day:read']]);
+        return $this->json($activities, Response::HTTP_OK, [],['groups' => ['day:read']]);
 
     }
 }
