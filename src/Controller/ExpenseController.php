@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\DayOfTrip;
 use App\Entity\Expense;
 use App\Entity\Trip;
+use App\Enum\ParticipantStatus;
 use App\Repository\ExpenseRepository;
 use App\Repository\TripParticipantRepository;
 use App\Service\ExpenseService;
@@ -46,11 +47,11 @@ class ExpenseController extends AbstractController
 
         foreach ($allExpenses as $expense) {
             if (!$expense->isPersonal()) {
-                $totalCommon += $expense->getSum();
+                $totalCommon += $expense->getAmountEuro();
                 $allCommonExpenses[] = $expense;
             }
             if ($expense->isPersonal() && $expense->getPaidBy() === $currentParticipant) {
-                $totalPersonal += $expense->getSum();
+                $totalPersonal += $expense->getAmountEuro();
                 $allPersonalExpenses[] = $expense;
             }
         }
@@ -103,7 +104,7 @@ class ExpenseController extends AbstractController
         foreach ($allExpenses as $expense) {
             if (!$expense->isPersonal()) {
                 $allCommonExpenses[] = $expense;
-                $total += $expense->getSum();
+                $total += $expense->getAmountEuro();
             }
         }
         $response = [
@@ -216,9 +217,12 @@ class ExpenseController extends AbstractController
             return $this->json("trip not found", Response::HTTP_NOT_FOUND);
         }
         $participant = $tripParticipantRepository->findOneParticipant($this->getUser(), $trip);
-        if (!$participant) {
-            return $this->json("not part of this trip", Response::HTTP_FORBIDDEN);
-        }
+        switch ($participant):
+            case null:
+                return $this->json("access denied", Response::HTTP_FORBIDDEN);
+            case $participant->getRole() == ParticipantStatus::VIEWER:
+                return $this->json("permissions not granted", Response::HTTP_FORBIDDEN);
+        endswitch;
 
         $res = $expenseService->addExpense($request, $trip);
         return $this->json($res, Response::HTTP_CREATED, [], ['groups' => 'expense:new']);

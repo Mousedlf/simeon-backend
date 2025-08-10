@@ -105,7 +105,6 @@ class ExpenseService
         $expense->setDayOfTrip($this->dayOfTripRepository->findOneBy(['id' => $data['dayOfTrip']]));
         $expense->setPaidBy($this->tripParticipantRepository->findOneParticipant($data['paidBy'], $expense->getTrip()));
         $expense->setName($data['name']);
-        $expense->setSum($data['sum']);
         $expense->setPaymentMethod($data['paymentMethod']);
         $expense->setPersonal($data['personal']);
         $expense->setDivide($data['divide']);
@@ -119,6 +118,18 @@ class ExpenseService
                     return "participant " . $id . " not found to divide with OR paid full expense";
                 }
             }
+        }
+
+        $expense->setAmountLocalCurrency($data['amountLocalCurrency']);
+        $expense->setCurrency($this->currencyRepository->findOneBy(['id' => $data['currency']]));
+        if ($expense->getCurrency()->getCode() === 'EUR') {
+            $expense->setAmountEuro($data['amountLocalCurrency']);
+            $expense->setExchangeRate(1.0);
+        } else {
+            $exchangeRate = $expense->getCurrency()->getExchangeRate();
+            $expense->setExchangeRate($exchangeRate);
+            $amountEuro = floatval(number_format($data['amountLocalCurrency'] * $exchangeRate, 2, '.', ' '));
+            $expense->setAmountEuro($amountEuro);
         }
 
         $this->manager->persist($expense);
