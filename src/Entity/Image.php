@@ -15,7 +15,6 @@ class Image
     #[ORM\Id]
     #[ORM\Column]
     #[ORM\GeneratedValue]
-    #[Groups(['trip:read'])]
     private ?int $id = null;
 
     // ... other fields
