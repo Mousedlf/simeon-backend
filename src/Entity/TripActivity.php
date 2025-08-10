@@ -15,15 +15,15 @@ class TripActivity
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['day:read', 'day:index', 'activity:read'])]
+    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['day:read', 'day:index', 'activity:read'])]
+    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['day:read', 'day:index', 'activity:read'])]
+    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
     private ?string $address = null;
 
     /**
@@ -34,30 +34,30 @@ class TripActivity
     private Collection $day;
 
     #[ORM\ManyToOne(inversedBy: 'tripActivities')]
-    #[Groups(['day:read', 'day:index', 'activity:read'])]
+    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
     private ?ActivityCategory $category = null;
 
     /**
      * @var Collection<int, Document>
      */
     #[ORM\OneToMany(targetEntity: Document::class, mappedBy: 'tripActivity')]
-    #[Groups(['day:read', 'day:index', 'activity:read'])]
+    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
     private Collection $documents;
 
     #[ORM\Column]
-    #[Groups(['day:read', 'day:index', 'activity:read'])]
+    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
     private ?float $longitude = null;
 
     #[ORM\Column]
-    #[Groups(['day:read', 'day:index', 'activity:read'])]
+    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
     private ?float $latitude = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['day:read', 'day:index', 'activity:read'])]
+    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
     private ?string $note = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['day:read', 'day:index', 'activity:read'])]
+    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
     private ?int $sequence = null;
 
     public function __construct()
