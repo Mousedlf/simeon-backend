@@ -20,11 +20,10 @@ class Image
     // ... other fields
 
     // NOTE: This is not a mapped field of entity metadata, just a simple property.
-    #[Vich\UploadableField(mapping: 'products', fileNameProperty: 'image.name', size: 'image.size')]
+    #[Vich\UploadableField(mapping: 'trips', fileNameProperty: 'image.name', size: 'image.size')]
     private ?File $imageFile = null;
 
     #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]
-    #[Groups(['trip:read'])]
     private ?EmbeddedFile $image = null;
 
     #[ORM\Column(nullable: true)]
@@ -104,5 +103,11 @@ class Image
         $this->trip = $trip;
 
         return $this;
+    }
+
+    #[Groups(['trip:read'])]
+    public function getImageUrl(): ?string
+    {
+        return $this->image?->getName() ? '/images/trips/' . $this->image->getName() : null;
     }
 }

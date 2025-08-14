@@ -17,7 +17,7 @@ class UserController extends AbstractController
     public function getAllPublicUsers(UserRepository $userRepository): Response
     {
         $publicUsers = $userRepository->findByStatus(true);
-        return $this->json($publicUsers, Response::HTTP_OK, [], ['groups' => ['users:read']]);
+        return $this->json($publicUsers, Response::HTTP_OK, [], ['groups' => ['users:index']]);
     }
 
     /**

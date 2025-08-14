@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Enum\ParticipantStatus;
 use App\Repository\TripParticipantRepository;
 use App\Repository\TripRepository;
+use App\Service\TripInviteService;
 use App\Service\TripService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -198,6 +199,13 @@ class TripController extends AbstractController
         return $this->json($response);
     }
 
+    /**
+     * Change participant role.
+     * @param Trip|null $trip
+     * @param Request $request
+     * @param TripService $tripService
+     * @return Response
+     */
     #[Route('/{id}/change-permissions', methods: ['POST'])]
     public function changeParticipantPermissions(?Trip $trip, Request $request, TripService $tripService): Response
     {
@@ -210,7 +218,23 @@ class TripController extends AbstractController
 
         $response = $tripService->changeStatusOfParticipants($trip, $request);
         return $this->json($response, Response::HTTP_OK);
+    }
 
+    /**
+     * Get public users which haven't been invited yet.
+     * @param Trip|null $trip
+     * @param TripInviteService $tripInviteService
+     * @return Response
+     */
+    #[Route('/{id}/invitable-people', methods: ['GET'])]
+    public function getInvitablePeople(
+        ?Trip $trip,
+        TripInviteService $tripInviteService,
+
+    ): Response
+    {
+        $people = $tripInviteService->getInvitablePeople($trip, $this->getUser());
+        return $this->json($people, Response::HTTP_OK, [], ['groups' => 'users:index']);
     }
 
 }

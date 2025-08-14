@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Trip;
 use App\Entity\TripInvite;
 use App\Entity\TripParticipant;
 use App\Enum\InviteStatus;
@@ -85,6 +86,51 @@ class TripInviteService
         $this->manager->remove($invite);
         $this->manager->flush();
         return "invite retracted";
+    }
+
+    /**
+     * Get public users which haven't been invited yet.
+     * @param Trip $trip
+     * @param $currentUser
+     * @return array[]
+     */
+    public function getInvitablePeople(Trip $trip, $currentUser): array
+    {
+        $recipientIdsMap = [];
+        $tripParticipants = $trip->getParticipants();
+
+        foreach ($tripParticipants as $tripParticipant) {
+            $sentInvites = $tripParticipant->getParticipant()->getSentTripInvites();
+            foreach ($sentInvites as $sentInvite) {
+                $recipientIdsMap[$sentInvite->getRecipient()->getId()] = true;
+            }
+        }
+
+        $participantIdsMap = [];
+        foreach ($tripParticipants as $participant) {
+            $participantIdsMap[$participant->getParticipant()->getId()] = true;
+        }
+
+        $publicUsers = $this->userRepository->findByStatus(true);
+        $invitablePublicUsers = [];
+        $invitedPublicUsers = [];
+
+        foreach ($publicUsers as $publicUser) {
+            $publicUserId = $publicUser->getId();
+
+            if(isset($recipientIdsMap[$publicUserId])){
+                $invitedPublicUsers[] = $publicUser;
+            }
+
+            if (!isset($recipientIdsMap[$publicUserId]) && !isset($participantIdsMap[$publicUserId]) && $publicUserId !== $currentUser->getId()) {
+                $invitablePublicUsers[] = $publicUser;
+            }
+        }
+
+        return [
+            "alreadyInvitedUsers" => $invitedPublicUsers,
+            "invitablePublicUsers" => $invitablePublicUsers,
+        ];
     }
 
 }
