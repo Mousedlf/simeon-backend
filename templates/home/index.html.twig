@@ -1,7 +1,676 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello HomeController!{% endblock %}
+{% block title %}Simeon API{% endblock %}
 
 {% block body %}
-<h1>Home</h1>
+    <div class="layout">
+        <nav class="sidebar">
+            <div class="toc-title">Table des matières</div>
+
+            <div class="toc-section">
+                <div class="toc-section-title">Authentification</div>
+                <a href="#register" class="toc-link">Créer un compte</a>
+                <a href="#login" class="toc-link">Obtenir un token</a>
+            </div>
+
+            <div class="toc-section">
+                <div class="toc-section-title">Utilisateurs</div>
+                <a href="#user-profile" class="toc-link">Profil utilisateur</a>
+                <a href="#user-visibility" class="toc-link">Modifier visibilité</a>
+                <a href="#user-username" class="toc-link">Modifier nom d'utilisateur</a>
+                <a href="#user-public" class="toc-link">Utilisateurs publics</a>
+            </div>
+
+            <div class="toc-section">
+                <div class="toc-section-title">Participants</div>
+                <a href="#add-people" class="toc-link">Inviter des personnes</a>
+                <a href="#remove-people" class="toc-link">Retirer des personnes</a>
+                <a href="#get-invites" class="toc-link">Voir invitations</a>
+                <a href="#accept-invite" class="toc-link">Accepter invitation</a>
+                <a href="#decline-invite" class="toc-link">Refuser invitation</a>
+                <a href="#change-permissions" class="toc-link">Changer permissions</a>
+                <a href="#retract-invite" class="toc-link">Annuler invitation</a>
+            </div>
+
+            <div class="toc-section">
+                <div class="toc-section-title">Dépenses</div>
+                <a href="#expenses-all" class="toc-link">Toutes les dépenses</a>
+                <a href="#expense-add" class="toc-link">Ajouter dépense</a>
+                <a href="#expenses-day" class="toc-link">Dépenses d'un jour</a>
+                <a href="#expenses-personal" class="toc-link">Dépenses personnelles</a>
+                <a href="#expenses-day-personal" class="toc-link">Dépenses jour + perso</a>
+                <a href="#expense-delete" class="toc-link">Supprimer dépense</a>
+                <a href="#expense-edit" class="toc-link">Modifier dépense</a>
+                <a href="#expense-budget" class="toc-link">Définir budget</a>
+            </div>
+
+            <div class="toc-section">
+                <div class="toc-section-title">Voyages</div>
+                <a href="#trips-all" class="toc-link">Tous les voyages</a>
+                <a href="#trip-one" class="toc-link">Un voyage</a>
+                <a href="#trip-image" class="toc-link">Ajouter image</a>
+                <a href="#trip-create" class="toc-link">Créer voyage</a>
+                <a href="#trip-delete" class="toc-link">Supprimer voyage</a>
+                <a href="#trip-edit" class="toc-link">Modifier voyage</a>
+                <a href="#trips-delete-multiple" class="toc-link">Supprimer plusieurs</a>
+                <a href="#trip-edit-dates" class="toc-link">Modifier dates</a>
+                <a href="#trip-invitable" class="toc-link">Personnes invitables</a>
+            </div>
+
+            <div class="toc-section">
+                <div class="toc-section-title">Conversations</div>
+                <a href="#conversation-show" class="toc-link">Une conversation</a>
+                <a href="#conversations-all" class="toc-link">Toutes conversations</a>
+                <a href="#message-new" class="toc-link">Nouveau message</a>
+                <a href="#message-edit" class="toc-link">Modifier message</a>
+            </div>
+
+            <div class="toc-section">
+                <div class="toc-section-title">Activités</div>
+                <a href="#activities-day" class="toc-link">Activités d'un jour</a>
+                <a href="#activity-add" class="toc-link">Ajouter activité</a>
+                <a href="#activity-edit" class="toc-link">Modifier activité</a>
+                <a href="#activity-delete" class="toc-link">Supprimer activité</a>
+                <a href="#activities-reorder" class="toc-link">Réorganiser activités</a>
+            </div>
+
+            <div class="toc-section">
+                <div class="toc-section-title">Devises</div>
+                <a href="#currencies-all" class="toc-link">Toutes les devises</a>
+            </div>
+
+            <div class="toc-section">
+                <div class="toc-section-title">Catégories</div>
+                <a href="#categories-expense" class="toc-link">Catégories dépenses</a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <h1>API SIMEON - Documentation</h1>
+
+            <p>Simeon est une application conçue pour simplifier l'organisation et le suivi de voyages, qu'ils soient en
+                solo ou en groupe. Grâce à une interface intuitive, l'application offre :</p>
+            <ul>
+                <li>Gestion des itinéraires (création, modification, visualisation).</li>
+                <li>Suivi des dépenses avec catégorisation et analyse en temps réel.</li>
+                <li>Collaboration entre utilisateurs (voyages partagés, invitations, rôles et permissions).</li>
+                <li>Gestion des messages et notifications.</li>
+                <li>Et bien plus encore.</li>
+            </ul>
+
+            <p>Lien vers le dépôt Github : <a href="https://github.com/Mousedlf/simeon-backend" target="_blank">https://github.com/Mousedlf/simeon-backend</a>
+            </p>
+<br>
+            <p><strong>Remarque :</strong><br>
+                Lorsque <span class="auth">🔒 Auth requis</span> est indiqué, vous devez inclure un Bearer Token dans
+                l'en-tête Authorization de votre requête.</p>
+
+
+            <h2 id="auth">Authentification</h2>
+            <div class="endpoint" id="register">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/register</span>
+                </div>
+                <div class="endpoint-name">Créer un compte</div>
+                <div class="description">Enregistrer un nouveau utilisateur dans le système</div>
+                <div class="code">
+                    {
+                    "username": "test",
+                    "email": "test@mail.com",
+                    "password": "test"
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="login">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/login_check</span>
+                </div>
+                <div class="endpoint-name">Obtenir un token</div>
+                <div class="description">Se connecter et récupérer un JWT pour les requêtes authentifiées</div>
+                <div class="code">
+                    {
+                    "username": "test",
+                    "password": "test"
+                    }
+                </div>
+            </div>
+
+            <h2 id="user">Utilisateurs</h2>
+
+            <div class="endpoint" id="user-profile">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/user/profile</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Profil utilisateur</div>
+                <div class="description">Récupérer les informations du profil de l'utilisateur connecté</div>
+            </div>
+
+            <div class="endpoint" id="user-visibility">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/user/{id}/edit/visibility</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Modifier la visibilité</div>
+                <div class="description">Changer la visibilité du profil utilisateur</div>
+            </div>
+
+            <div class="endpoint" id="user-username">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/user/{id}/edit/username</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Modifier le nom d'utilisateur</div>
+                <div class="description">Changer le nom d'utilisateur du compte</div>
+                <div class="code">
+                    {
+                    "username": "nouveau_nom"
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="user-public">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/user/all/public</span>
+                </div>
+                <div class="endpoint-name">Utilisateurs publics</div>
+                <div class="description">Récupérer la liste de tous les utilisateurs publics</div>
+            </div>
+
+            <h2 id="participants">Participants</h2>
+
+            <div class="endpoint" id="add-people">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/trip/{id}/add-people</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Inviter des personnes</div>
+                <div class="description">Inviter des personnes à rejoindre un voyage</div>
+                <div class="code">
+                    {
+                    "message": "coucou",
+                    "people": [
+                        {
+                        "userId": 7,
+                        "statusId": 2
+                        },
+                        {
+                        "userId": 3,
+                        "statusId": 1
+                        },
+                    ]}
+                </div>
+            </div>
+
+            <div class="endpoint" id="remove-people">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/trip/{id}/remove-people</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Retirer des personnes</div>
+                <div class="description">Retirer des personnes d'un voyage</div>
+                <div class="code">
+                    {
+                    "peopleIds": [6, 5]
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="get-invites">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/invite/all/user/{id}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Voir les invitations</div>
+                <div class="description">Récupérer toutes les invitations d'un utilisateur</div>
+            </div>
+
+            <div class="endpoint" id="accept-invite">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/invite/{id}/accept</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Accepter invitation</div>
+                <div class="description">Accepter une invitation à un voyage</div>
+            </div>
+
+            <div class="endpoint" id="decline-invite">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/invite/{id}/decline</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Refuser invitation</div>
+                <div class="description">Refuser une invitation à un voyage</div>
+            </div>
+
+            <div class="endpoint" id="change-permissions">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/trip/{id}/change-permissions</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Changer permissions</div>
+                <div class="description">Modifier les permissions des participants d'un voyage</div>
+                <div class="code">
+                    {
+                    "participants": [
+                        {
+                        "userId": 1,
+                        "statusId": 3
+                        }
+                    ]}
+                </div>
+            </div>
+
+            <div class="endpoint" id="retract-invite">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/invite/{id}/retract</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Annuler invitation</div>
+                <div class="description">Annuler une invitation envoyée</div>
+            </div>
+
+            <h2 id="expense">Dépenses</h2>
+
+            <div class="endpoint" id="expenses-all">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/expense/all/trip/{id}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Toutes les dépenses</div>
+                <div class="description">Récupérer toutes les dépenses d'un voyage</div>
+            </div>
+
+            <div class="endpoint" id="expense-add">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/expense/new/trip/{id}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Ajouter une dépense</div>
+                <div class="description">Créer une nouvelle dépense pour un voyage</div>
+                <div class="code">
+                    {
+                    "dayOfTrip": null,
+                    "amountLocalCurrency": 1.25,
+                    "currency": 1,
+                    "divide": false,
+                    "name": "thé",
+                    "paidBy": 4,
+                    "divideBetween": [7, 4],
+                    "paymentMethod": null,
+                    "personal": true,
+                    "category": 2
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="expenses-day">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/expense/all/trip/{id}/day/{day}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Dépenses d'un jour</div>
+                <div class="description">Récupérer toutes les dépenses communes d'un jour spécifique</div>
+            </div>
+
+            <div class="endpoint" id="expenses-personal">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/expense/all/trip/{id}/personal</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Dépenses personnelles</div>
+                <div class="description">Récupérer toutes les dépenses personnelles d'un voyage</div>
+            </div>
+
+            <div class="endpoint" id="expenses-day-personal">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/expense/all/trip/{id}/day/{day}/with-personal</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Dépenses jour + personnelles</div>
+                <div class="description">Récupérer toutes les dépenses (communes et personnelles) d'un jour</div>
+            </div>
+
+            <div class="endpoint" id="expense-delete">
+                <div class="method-line">
+                    <span class="method delete">DELETE</span>
+                    <span class="url">/api/expense/{id}/delete</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Supprimer dépense</div>
+                <div class="description">Supprimer une dépense existante</div>
+            </div>
+
+            <div class="endpoint" id="expense-edit">
+                <div class="method-line">
+                    <span class="method put">PUT</span>
+                    <span class="url">/api/expense/{id}/edit</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Modifier dépense</div>
+                <div class="description">Modifier une dépense existante</div>
+                <div class="code">
+                    {
+                    "dayOfTrip": null,
+                    "amountLocalCurrency": 1.25,
+                    "currency": 1,
+                    "divide": false,
+                    "name": "thé",
+                    "paidBy": 4,
+                    "divideBetween": [7, 4],
+                    "paymentMethod": null,
+                    "personal": true,
+                    "category": 2
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="expense-budget">
+                <div class="method-line">
+                    <span class="method put">PUT</span>
+                    <span class="url">/api/expense/trip/{id}/budget</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Définir budget</div>
+                <div class="description">Définir le budget personnel pour un voyage</div>
+                <div class="code">
+                    {
+                    "budget": 465
+                    }
+                </div>
+            </div>
+
+            <h2 id="trip">Voyages</h2>
+
+            <div class="endpoint" id="trips-all">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/trip/all/{userId}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Tous les voyages</div>
+                <div class="description">Récupérer tous les voyages d'un utilisateur</div>
+            </div>
+
+            <div class="endpoint" id="trip-one">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/trip/{id}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Un voyage</div>
+                <div class="description">Récupérer les détails d'un voyage spécifique</div>
+            </div>
+
+            <div class="endpoint" id="trip-image">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/trip/{id}/image</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Ajouter image</div>
+                <div class="description">Ajouter une image à un voyage (multipart/form-data)</div>
+            </div>
+
+            <div class="endpoint" id="trip-create">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/trip/new</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Créer voyage</div>
+                <div class="description">Créer un nouveau voyage</div>
+                <div class="code">
+                    {
+                    "name": "Mallorca 2.0",
+                    "description": "repos, plage et allemands",
+                    "startDate": "2025-06-01",
+                    "endDate": "2025-06-02",
+                    "public": false
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="trip-delete">
+                <div class="method-line">
+                    <span class="method delete">DELETE</span>
+                    <span class="url">/api/trip/{id}/delete</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Supprimer voyage</div>
+                <div class="description">Supprimer un voyage existant</div>
+            </div>
+
+            <div class="endpoint" id="trip-edit">
+                <div class="method-line">
+                    <span class="method put">PUT</span>
+                    <span class="url">/api/trip/{id}/edit</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Modifier voyage</div>
+                <div class="description">Modifier les informations textuelles d'un voyage</div>
+                <div class="code">
+                    {
+                    "name": "Francfort",
+                    "description": "Séjour à la maison"
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="trips-delete-multiple">
+                <div class="method-line">
+                    <span class="method delete">DELETE</span>
+                    <span class="url">/api/trip/delete</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Supprimer plusieurs voyages</div>
+                <div class="description">Supprimer plusieurs voyages en une fois</div>
+                <div class="code">
+                    {
+                    "tripIds": [3, 4]
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="trip-edit-dates">
+                <div class="method-line">
+                    <span class="method put">PUT</span>
+                    <span class="url">/api/trip/{id}/edit-dates</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Modifier dates</div>
+                <div class="description">Modifier les dates de début et de fin d'un voyage</div>
+                <div class="code">
+                    {
+                    "startDate": "2025-09-10",
+                    "endDate": "2025-09-20"
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="trip-invitable">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/trip/{id}/invitable-people</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Personnes invitables</div>
+                <div class="description">Récupérer la liste des personnes pouvant être invitées à un voyage</div>
+            </div>
+
+            <h2 id="conversations">Conversations</h2>
+
+            <div class="endpoint" id="conversation-show">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/conversation/{id}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Une conversation</div>
+                <div class="description">Afficher une conversation spécifique</div>
+            </div>
+
+            <div class="endpoint" id="conversations-all">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/conversation/all</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Toutes les conversations</div>
+                <div class="description">Récupérer toutes les conversations d'un utilisateur</div>
+            </div>
+
+            <div class="endpoint" id="message-new">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/conversation/{id}/message/new</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Nouveau message</div>
+                <div class="description">Envoyer un nouveau message dans une conversation</div>
+                <div class="code">
+                    {
+                    "content": "le contenu du message"
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="message-edit">
+                <div class="method-line">
+                    <span class="method put">PUT</span>
+                    <span class="url">/api/conversation/{id}/message/{messageId}/edit</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Modifier message</div>
+                <div class="description">Modifier un message existant dans une conversation</div>
+                <div class="code">
+                    {
+                    "content": "contenu modifié"
+                    }
+                </div>
+            </div>
+
+            <h2 id="activities">Activités</h2>
+
+            <div class="endpoint" id="activities-day">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/trip/{tripId}/day/{day}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Activités d'un jour</div>
+                <div class="description">Récupérer les activités d'une journée spécifique</div>
+            </div>
+
+            <div class="endpoint" id="activity-add">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/activity/new/trip/{tripId}/day/{day}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Ajouter activité</div>
+                <div class="description">Ajouter une nouvelle activité à une journée</div>
+                <div class="code">
+                    {
+                    "name": "Tour eiffel",
+                    "address": "Av. Gustave Eiffel, 75007 Paris",
+                    "category": 20,
+                    "longitude": 2.2945006,
+                    "latitude": 48.8582599,
+                    "note": "classique"
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="activity-edit">
+                <div class="method-line">
+                    <span class="method put">PUT</span>
+                    <span class="url">/api/activity/edit/{id}/trip/{tripId}/day/{day}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Modifier activité</div>
+                <div class="description">Modifier une activité existante</div>
+                <div class="code">
+                    {
+                    "name": "Bourse du Commerce",
+                    "address": "2 Rue de Viarmes, 75001 Paris",
+                    "category": 17,
+                    "longitude": 2.3428364,
+                    "latitude": 48.8628174,
+                    "note": "bols in the water"
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="activity-delete">
+                <div class="method-line">
+                    <span class="method delete">DELETE</span>
+                    <span class="url">/api/activity/{id}/trip/{tripId}/delete</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Supprimer activité</div>
+                <div class="description">Supprimer une activité d'un voyage</div>
+            </div>
+
+            <div class="endpoint" id="activities-reorder">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/activity/trip/{tripId}/day/{day}/reorder</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Réorganiser activités</div>
+                <div class="description">Réorganiser l'ordre des activités d'une journée</div>
+                <div class="code">
+                    {
+                    "order": [2, 1]
+                    }
+                </div>
+            </div>
+
+            <h2 id="currencies">Devises</h2>
+
+            <div class="endpoint" id="currencies-all">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/currency/all</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Toutes les devises</div>
+                <div class="description">Récupérer la liste de toutes les devises disponibles</div>
+            </div>
+
+            <h2 id="categories">Catégories</h2>
+
+            <div class="endpoint" id="categories-expense">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/category/all/expense</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Catégories de dépenses</div>
+                <div class="description">Récupérer toutes les catégories disponibles pour les dépenses</div>
+            </div>
+
+        </main>
+    </div>
+
 {% endblock %}
