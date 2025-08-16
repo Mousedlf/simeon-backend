@@ -1,13 +1,15 @@
+
 # Simeon - API
 
-Ce dépôt contient la partie backend de Simeon, une application conçue pour simplifier l’organisation et le suivi de voyages, qu’ils soient en solo ou en groupe. L'application permet :
+Ce dépôt contient la partie backend de Simeon, une application conçue pour simplifier l’organisation et le suivi de voyages, qu’ils soient en solo ou en groupe. Grâce à une interface intuitive, l'application offre :
 
-- Système d'authentification.
 - Gestion des itinéraires (création, modification, visualisation).
-- Intégration des réservations (import automatique depuis des emails ou fichiers).
 - Suivi des dépenses avec catégorisation et analyse en temps réel.
-- Gestion des données collaboratives et des permissions.
+- Collaboration entre utilisateurs (voyages partagés, invitations, rôles et permissions).
+- Gestion des messages et notifications.
 - Et bien plus encore.
 
 ## Documentation
-(à venir)
+
+La documentation complète de l’API est disponible ici : 
+[Documentation](https://apisimeon.dlfcaroline.com)
