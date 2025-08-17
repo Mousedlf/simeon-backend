@@ -60,6 +60,10 @@ class TripActivity
     #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
     private ?int $sequence = null;
 
+    #[ORM\OneToOne(inversedBy: 'tripActivity', cascade: ['persist', 'remove'])]
+    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
+    private ?Image $image = null;
+
     public function __construct()
     {
         $this->day = new ArrayCollection();
@@ -205,6 +209,18 @@ class TripActivity
     public function setSequence(?int $sequence): static
     {
         $this->sequence = $sequence;
+
+        return $this;
+    }
+
+    public function getImage(): ?Image
+    {
+        return $this->image;
+    }
+
+    public function setImage(?Image $image): static
+    {
+        $this->image = $image;
 
         return $this;
     }

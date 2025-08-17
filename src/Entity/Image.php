@@ -27,11 +27,14 @@ class Image
     private ?EmbeddedFile $image = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['trip:read'])]
+    #[Groups(['trip:read', 'day:read', 'day:index', 'activity:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\OneToOne(mappedBy: 'image', cascade: ['persist', 'remove'])]
     private ?Trip $trip = null;
+
+    #[ORM\OneToOne(mappedBy: 'image', cascade: ['persist', 'remove'])]
+    private ?TripActivity $tripActivity = null;
 
     public function __construct()
     {
@@ -105,9 +108,31 @@ class Image
         return $this;
     }
 
-    #[Groups(['trip:read'])]
+    #[Groups(['trip:read', 'day:read', 'day:index', 'activity:read'])]
     public function getImageUrl(): ?string
     {
         return $this->image?->getName() ? '/images/trips/' . $this->image->getName() : null;
+    }
+
+    public function getTripActivity(): ?TripActivity
+    {
+        return $this->tripActivity;
+    }
+
+    public function setTripActivity(?TripActivity $tripActivity): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($tripActivity === null && $this->tripActivity !== null) {
+            $this->tripActivity->setImage(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($tripActivity !== null && $tripActivity->getImage() !== $this) {
+            $tripActivity->setImage($this);
+        }
+
+        $this->tripActivity = $tripActivity;
+
+        return $this;
     }
 }
