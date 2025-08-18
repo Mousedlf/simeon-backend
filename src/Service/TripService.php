@@ -62,7 +62,6 @@ class TripService
     {
         $trip = $this->serializer->deserialize($request->getContent(), Trip::class, 'json');
         $trip->setOwner($user);
-        $trip->setPublic(false);
 
         $participant = new TripParticipant();
         $participant->setTrip($trip);
