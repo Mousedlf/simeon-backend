@@ -19,7 +19,7 @@ class Trip
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['trip:read','invites:read','expense:new', 'expense:read'])]
+    #[Groups(['trip:read','invites:read','expense:new', 'expense:read', 'user:read'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'createdTrips')]
@@ -32,11 +32,11 @@ class Trip
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Groups(['trip:read','invites:read'])]
+    #[Groups(['trip:read','invites:read', 'user:read'])]
     private ?\DateTimeImmutable $startDate = null;
 
     #[ORM\Column]
-    #[Groups(['trip:read','invites:read'])]
+    #[Groups(['trip:read','invites:read', 'user:read'])]
     private ?\DateTimeImmutable $endDate = null;
 
     #[ORM\Column(nullable: true)]

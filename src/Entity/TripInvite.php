@@ -15,7 +15,7 @@ class TripInvite
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['invites:read', 'trip:read'])]
+    #[Groups(['invites:read', 'trip:read', 'user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -33,6 +33,7 @@ class TripInvite
     private ?User $recipient = null;
 
     #[ORM\Column]
+    #[Groups(['invites:read', 'trip:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'sentInvites')]
@@ -41,6 +42,7 @@ class TripInvite
     private ?Trip $trip = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['invites:read', 'trip:read'])]
     private ?ParticipantStatus $role = null;
 
     #[ORM\Column(length: 255, nullable: true)]

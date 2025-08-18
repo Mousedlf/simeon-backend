@@ -28,7 +28,14 @@ class TripInviteController extends AbstractController
             return $this->json("Access denied", Response::HTTP_FORBIDDEN);
         }
 
-        $invites = $user->getReceivedTripInvites();
+        $receivedInvites = $user->getReceivedTripInvites();
+        $sentInvites = $user->getSentTripInvites();
+
+        $invites = [
+            "receivedInvites" => $receivedInvites,
+            "sentInvites" => $sentInvites
+        ];
+
         return $this->json($invites, Response::HTTP_OK, [], ['groups' => 'invites:read']);
     }
 
