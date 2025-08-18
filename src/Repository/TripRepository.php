@@ -19,19 +19,6 @@ class TripRepository extends ServiceEntityRepository
     /**
      * @return Trip[] Returns an array of Trip objects
      */
-    public function findByUser($user): array
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.owner = :user')
-            ->setParameter('user', $user)
-            ->orderBy('t.id', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * @return Trip[] Returns an array of Trip objects
-     */
     public function findByStatus($bool): array
     {
         return $this->createQueryBuilder('t')

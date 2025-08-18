@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Repository\TripParticipantRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -88,5 +89,38 @@ class UserController extends AbstractController
         } else {
             return $this->json("username already taken", 401);
         }
+    }
+
+    /**
+     * Get travel statistics of user
+     * @param User|null $user
+     * @param TripParticipantRepository $tripParticipantRepository
+     * @return Response
+     */
+    #[Route('/{id}/stats', methods: ['GET'])]
+    public function getTravelStats(
+        ?User $user,
+        TripParticipantRepository $tripParticipantRepository,
+    ): Response
+    {
+        if(!$user){
+            return $this->json("user not found", 404);
+        }
+
+        $userParticipatesIn = $tripParticipantRepository->findByUser($user);
+
+        $totalDayCount = 0;
+        foreach ($userParticipatesIn as $participant) {
+            $trip = $participant->getTrip();
+            $totalDayCount += count($trip->getDaysOfTrip());
+        }
+
+        $response= [
+            'totalDayCount' => $totalDayCount,
+            'totalTripCount' => count($userParticipatesIn)
+        ];
+
+        return $this->json($response, Response::HTTP_OK);
+
     }
 }
