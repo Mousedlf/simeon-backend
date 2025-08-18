@@ -45,7 +45,7 @@ class TripInviteController extends AbstractController
      * @param TripInvite|null $invite
      * @return Response
      */
-    #[Route('/{id}/accept', methods: ['GET'])]
+    #[Route('/{id}/accept', methods: ['POST'])]
     public function acceptTripInvite(TripInviteService $tripInviteService, ?TripInvite $invite): Response
     {
         if (!$invite) {
@@ -65,7 +65,7 @@ class TripInviteController extends AbstractController
      * @param TripInvite|null $invite
      * @return Response
      */
-    #[Route('/{id}/decline', methods: ['GET'])]
+    #[Route('/{id}/decline', methods: ['POST'])]
     public function declineTripInvite(TripInviteService $tripInviteService, ?TripInvite $invite): Response
     {
         if (!$invite) {
@@ -84,7 +84,7 @@ class TripInviteController extends AbstractController
      * @param TripInvite|null $invite
      * @return Response
      */
-    #[Route('/{id}/retract', methods: ['GET'])]
+    #[Route('/{id}/retract', methods: ['POST'])]
     public function retractTripInvite(TripInviteService $tripInviteService, ?TripInvite $invite): Response
     {
         if (!$invite) {
