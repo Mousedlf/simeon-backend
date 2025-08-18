@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api/activity')]
 class TripActivityController extends AbstractController
 {
-    #[Route('/new/trip/{tripId}/day/{dayId}', name: "app_trip_new-activity", methods: ['POST'])]
+    #[Route('/new/trip/{tripId}', name: "app_trip_new-activity", methods: ['POST'])]
     #[Route('/edit/{id}/trip/{tripId}/day/{dayId}', name: "app_trip_edit-activity", methods: ['PUT'])]
     public function addTripActivity(
         #[MapEntity(id: 'id')] ?TripActivity $tripActivity,
@@ -28,8 +28,8 @@ class TripActivityController extends AbstractController
         TripParticipantRepository $tripParticipantRepository
     ) : Response
     {
-        if(!$trip || !$dayOfTrip) {
-            return $this->json('trip or day  not found', Response::HTTP_NOT_FOUND);
+        if(!$trip) {
+            return $this->json('trip not found', Response::HTTP_NOT_FOUND);
         }
         $participant = $tripParticipantRepository->findOneParticipant($this->getUser(), $trip);
         switch ($participant):
@@ -40,12 +40,20 @@ class TripActivityController extends AbstractController
         endswitch;
 
         if ($request->get('_route') == "app_trip_edit-activity") {
-            if(!$tripActivity) {
-                return $this->json("trip activity not found", Response::HTTP_NOT_FOUND);
+            if(!$tripActivity || !$dayOfTrip) {
+                return $this->json("trip activity or day not found", Response::HTTP_NOT_FOUND);
             }
             $calledFunction = $activityService->editActivityOfTrip($dayOfTrip, $request, $tripActivity);
         } else {
-            $calledFunction = $activityService->addActivityToTrip($dayOfTrip, $request);
+
+            $activityJsonData = $request->request->get('data');
+            $uploadedFile = $request->files->get('image');
+
+            if (!$activityJsonData) {
+                return $this->json(['message' => 'Missing activity json data in form-data'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $calledFunction = $activityService->addActivityToTrip($activityJsonData, $uploadedFile);
         }
 
         $res = $calledFunction;

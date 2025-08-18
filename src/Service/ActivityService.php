@@ -3,10 +3,14 @@
 namespace App\Service;
 
 use App\Entity\DayOfTrip;
+use App\Entity\Image;
 use App\Entity\Trip;
 use App\Entity\TripActivity;
 use App\Repository\ActivityCategoryRepository;
+use App\Repository\DayOfTripRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -16,6 +20,7 @@ class ActivityService
         public EntityManagerInterface $manager,
         public SerializerInterface $serializer,
         public ActivityCategoryRepository $activityCategoryRepository,
+        public dayOfTripRepository $dayOfTripRepository,
     ){}
 
     /**
@@ -24,16 +29,34 @@ class ActivityService
      * @param Request $request
      * @return array
      */
-    public function addActivityToTrip(DayOfTrip $dayOfTrip, Request $request) : array
+    public function addActivityToTrip(string $activityJsonData, ?UploadedFile $uploadedFile) : array
     {
-        $activity = $this->serializer->deserialize($request->getContent(), TripActivity::class, 'json');
-        $data = $request->toArray();
+        $activity = $this->serializer->deserialize($activityJsonData, TripActivity::class, 'json');
+        $data = json_decode($activityJsonData, true);
 
-        $activity->setCategory($this->activityCategoryRepository->findOneBy(['id' => $data['category']]));
+        $category = $this->activityCategoryRepository->findOneBy(['id' => $data['category']]);
+        $dayOfTrip = $this->dayOfTripRepository->findOneBy(['id' => $data['dayOfTrip']]);
+
+        if (!$category) {
+            throw new \Exception('Activity category not found with ID ' . $data['category']);
+        }
+        if (!$dayOfTrip) {
+            throw new \Exception('Day of trip not found with ID ' . $data['dayOfTrip']);
+        }
+
+        $activity->setCategory($category);
         $activity->addDay($dayOfTrip);
 
-        $activitiesCount= count($dayOfTrip->getActivities());
+        $activitiesCount = count($dayOfTrip->getActivities());
         $activity->setSequence($activitiesCount + 1);
+
+        if ($uploadedFile) {
+            $image = new Image();
+            $image->setImagefile($uploadedFile);
+            $image->setTripActivity($activity);
+            $this->manager->persist($image);
+            $activity->setImage($image);
+        }
 
         $this->manager->persist($activity);
         $this->manager->flush();
