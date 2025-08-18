@@ -29,7 +29,7 @@ class TripInvite
 
     #[ORM\ManyToOne(inversedBy: 'receivedTripInvites')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['trip:read'])]
+    #[Groups(['trip:read', 'invites:read'])]
     private ?User $recipient = null;
 
     #[ORM\Column]
