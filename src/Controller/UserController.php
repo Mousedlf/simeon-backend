@@ -65,7 +65,7 @@ class UserController extends AbstractController
      * @return Response (string)
      */
     #[Route('/{id}/edit', methods: ['PUT'])]
-    public function editUserUsername(
+    public function editUser(
         User $user,
         EntityManagerInterface $manager,
         Request $request,
@@ -83,11 +83,14 @@ class UserController extends AbstractController
 
         $user->setPublic($data["public"]);
 
-        $taken = $userRepository->findOneBy(['username' => $newUsername]);
-        if (!$taken) {
-            $user->setUsername($newUsername);
-        } else {
-            return $this->json("username already taken", 401);
+        if ($currentUser->getUsername() !== $newUsername) {
+            $taken = $userRepository->findOneBy(['username' => $newUsername]);
+
+            if ($taken) {
+                return $this->json(["message" => "Username already taken"], Response::HTTP_CONFLICT);
+            } else {
+                $currentUser->setUsername($newUsername);
+            }
         }
 
         $manager->persist($user);
