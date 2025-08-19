@@ -64,7 +64,7 @@ class UserController extends AbstractController
      * @param UserRepository $userRepository
      * @return Response (string)
      */
-    #[Route('/{id}/edit-username', methods: ['POST'])]
+    #[Route('/{id}/edit', methods: ['POST'])]
     public function editUserUsername(
         User $user,
         EntityManagerInterface $manager,
@@ -78,17 +78,21 @@ class UserController extends AbstractController
         }
 
         $content = $request->getContent();
-        $newUsername = json_decode($content, true)["username"];
+        $data = json_decode($content, true);
+        $newUsername = $data["username"];
+
+        $user->setPublic($data["public"]);
 
         $taken = $userRepository->findOneBy(['username' => $newUsername]);
         if (!$taken) {
             $user->setUsername($newUsername);
-            $manager->persist($user);
-            $manager->flush();
-            return $this->json($this->getUser(), 200, [], ['groups' => 'user:read']);
         } else {
             return $this->json("username already taken", 401);
         }
+
+        $manager->persist($user);
+        $manager->flush();
+        return $this->json($this->getUser(), 200, [], ['groups' => 'user:read']);
     }
 
     /**
