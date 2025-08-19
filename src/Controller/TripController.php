@@ -22,7 +22,7 @@ class TripController extends AbstractController
      * @param TripRepository $tripRepository
      * @return Response
      */
-    #[Route('/all', methods: ['GET'])]
+    #[Route('/community', methods: ['GET'])]
     public function getAllPublicTrips(TripRepository $tripRepository): Response
     {
         return $this->json($tripRepository->findByStatus(true), Response::HTTP_OK, [], ['groups' => 'trip:read']);
