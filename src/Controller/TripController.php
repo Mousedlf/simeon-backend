@@ -18,6 +18,17 @@ use Symfony\Component\Routing\Attribute\Route;
 class TripController extends AbstractController
 {
     /**
+     * Get all existing public trips
+     * @param TripRepository $tripRepository
+     * @return Response
+     */
+    #[Route('/all', methods: ['GET'])]
+    public function getAllPublicTrips(TripRepository $tripRepository): Response
+    {
+        return $this->json($tripRepository->findByStatus(true), Response::HTTP_OK, [], ['groups' => 'trip:read']);
+    }
+
+    /**
      * Get all trips of a user is he is public or if it's the current user.
      * @param User|null $user
      * @param TripService $tripService
@@ -35,12 +46,6 @@ class TripController extends AbstractController
         } else {
             return $this->json("access denied", Response::HTTP_FORBIDDEN);
         }
-    }
-
-    #[Route('/all', methods: ['GET'])]
-    public function getAllPublicTrips(TripRepository $tripRepository): Response
-    {
-        return $this->json($tripRepository->findByStatus(true), Response::HTTP_OK, [], ['groups' => 'trip:read']);
     }
 
     /**
