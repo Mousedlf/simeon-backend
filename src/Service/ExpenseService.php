@@ -53,7 +53,7 @@ class ExpenseService
         } else {
             $exchangeRate = $expense->getCurrency()->getExchangeRate();
             $expense->setExchangeRate($exchangeRate);
-            $amountEuro = floatval(number_format($data['amountLocalCurrency'] * $exchangeRate, 2, '.', ' '));
+            $amountEuro = floatval(number_format($data['amountLocalCurrency'] / $exchangeRate, 2, '.', ' '));
             $expense->setAmountEuro($amountEuro);
         }
 
