@@ -4,13 +4,10 @@ namespace App\Service;
 
 use App\Entity\DayOfTrip;
 use App\Entity\Image;
-use App\Entity\Trip;
 use App\Entity\TripActivity;
 use App\Repository\ActivityCategoryRepository;
 use App\Repository\DayOfTripRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -21,6 +18,7 @@ class ActivityService
         public SerializerInterface $serializer,
         public ActivityCategoryRepository $activityCategoryRepository,
         public dayOfTripRepository $dayOfTripRepository,
+        public GooglePlacesService $googlePlacesService,
     ){}
 
     /**
@@ -29,10 +27,10 @@ class ActivityService
      * @param Request $request
      * @return array
      */
-    public function addActivityToTrip(string $activityJsonData, ?UploadedFile $uploadedFile) : array
+    public function addActivityToTrip(Request $request) : array
     {
-        $activity = $this->serializer->deserialize($activityJsonData, TripActivity::class, 'json');
-        $data = json_decode($activityJsonData, true);
+        $activity = $this->serializer->deserialize($request->getContent(), TripActivity::class, 'json');
+        $data = $request->toArray();
 
         $category = $this->activityCategoryRepository->findOneBy(['id' => $data['category']]);
         $dayOfTrip = $this->dayOfTripRepository->findOneBy(['id' => $data['dayOfTrip']]);
@@ -50,12 +48,21 @@ class ActivityService
         $activitiesCount = count($dayOfTrip->getActivities());
         $activity->setSequence($activitiesCount + 1);
 
-        if ($uploadedFile) {
-            $image = new Image();
-            $image->setImagefile($uploadedFile);
-            $image->setTripActivity($activity);
-            $this->manager->persist($image);
-            $activity->setImage($image);
+        if (!empty($data['name'])) {
+            $placeId = $this->googlePlacesService->findPlaceId($data['name']);
+            if ($placeId) {
+                $details = $this->googlePlacesService->getPlaceDetails($placeId);
+                if (!empty($details['photos'][0]['photo_reference'])) {
+                    $photoUrl = $this->googlePlacesService->getPhotoUrl($details['photos'][0]['photo_reference']);
+
+                    $image = new Image();
+                    $image->setGoogleImageUrl($photoUrl);
+                    $image->setUpdatedAt(new \DateTimeImmutable());
+                    $image->setTripActivity($activity);
+                    $this->manager->persist($image);
+                    $activity->setImage($image);
+                }
+            }
         }
 
         $this->manager->persist($activity);

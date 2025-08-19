@@ -36,6 +36,10 @@ class Image
     #[ORM\OneToOne(mappedBy: 'image', cascade: ['persist', 'remove'])]
     private ?TripActivity $tripActivity = null;
 
+    #[ORM\Column(length: 1000, nullable: true)]
+    #[Groups(['trip:read', 'day:read', 'day:index', 'activity:read'])]
+    private ?string $googleImageUrl = null;
+
     public function __construct()
     {
         $this->image = new EmbeddedFile();
@@ -132,6 +136,18 @@ class Image
         }
 
         $this->tripActivity = $tripActivity;
+
+        return $this;
+    }
+
+    public function getGoogleImageUrl(): ?string
+    {
+        return $this->googleImageUrl;
+    }
+
+    public function setGoogleImageUrl(?string $googleImageUrl): static
+    {
+        $this->googleImageUrl = $googleImageUrl;
 
         return $this;
     }
