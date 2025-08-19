@@ -46,14 +46,7 @@ class TripActivityController extends AbstractController
             $calledFunction = $activityService->editActivityOfTrip($dayOfTrip, $request, $tripActivity);
         } else {
 
-            $activityJsonData = $request->request->get('data');
-            $uploadedFile = $request->files->get('image');
-
-            if (!$activityJsonData) {
-                return $this->json(['message' => 'Missing activity json data in form-data'], Response::HTTP_BAD_REQUEST);
-            }
-
-            $calledFunction = $activityService->addActivityToTrip($activityJsonData, $uploadedFile);
+            $calledFunction = $activityService->addActivityToTrip($request);
         }
 
         $res = $calledFunction;
