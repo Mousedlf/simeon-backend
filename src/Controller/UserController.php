@@ -57,14 +57,14 @@ class UserController extends AbstractController
     }
 
     /**
-     * Change username.
+     * Change user info: username and visibility.
      * @param User $user
      * @param EntityManagerInterface $manager
      * @param Request $request
      * @param UserRepository $userRepository
      * @return Response (string)
      */
-    #[Route('/{id}/edit', methods: ['POST'])]
+    #[Route('/{id}/edit', methods: ['PUT'])]
     public function editUserUsername(
         User $user,
         EntityManagerInterface $manager,
