@@ -143,7 +143,7 @@ class DocumentController extends AbstractController
     }
 
     /**
-     * Delete a document of a trip.
+     * Delete a document of a user.
      * @param Document|null $document
      * @param DocumentService $documentService
      * @return Response

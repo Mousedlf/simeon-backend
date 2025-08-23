@@ -97,8 +97,17 @@ class TripController extends AbstractController
         ?Trip $trip,
         TripService $tripService,
         Request     $request,
+        TripParticipantRepository $tripParticipantRepository
     ):Response
     {
+        $participant = $tripParticipantRepository->findOneParticipant($this->getUser(), $trip);
+        switch ($participant):
+            case null:
+                return $this->json("access denied", Response::HTTP_FORBIDDEN);
+            case $participant->getRole() == ParticipantStatus::VIEWER:
+                return $this->json("permissions not granted", Response::HTTP_FORBIDDEN);
+        endswitch;
+
         $trip = $tripService->addImageToTrip($trip, $request);
         return $this->json($trip, Response::HTTP_CREATED, [], ['groups' => 'trip:read']);
     }
@@ -119,12 +128,6 @@ class TripController extends AbstractController
             return $this->json("trip not found", Response::HTTP_NOT_FOUND);
         }
 
-        if ($request->get('_route') == "app_trip_edit-dates") {
-            $calledFunction = $tripService->editTripDates($trip, $request);
-        } else {
-            $calledFunction = $tripService->editTripNameAndDescription($trip, $request);
-        }
-
         $participant = $tripParticipantRepository->findOneParticipant($this->getUser(), $trip);
         switch ($participant):
             case null:
@@ -132,6 +135,16 @@ class TripController extends AbstractController
             case $participant->getRole() == ParticipantStatus::VIEWER:
                 return $this->json("permissions not granted", Response::HTTP_FORBIDDEN);
         endswitch;
+
+        if ($request->get('_route') == "app_trip_edit-dates") {
+
+            if($participant->getRole() == ParticipantStatus::EDITOR){
+                return $this->json("permissions not granted for this", Response::HTTP_FORBIDDEN);
+            }
+            $calledFunction = $tripService->editTripDates($trip, $request);
+        } else {
+            $calledFunction = $tripService->editTripNameAndDescription($trip, $request);
+        }
 
         $editedTrip = $calledFunction;
         return $this->json($editedTrip, Response::HTTP_OK, [], ['groups' => 'trip:read']);
@@ -145,7 +158,11 @@ class TripController extends AbstractController
      * @return Response
      */
     #[Route('/delete', methods: ['DELETE'])]
-    public function deleteTrips(TripService $tripService, Request $request, TripRepository $tripRepository): Response
+    public function deleteTrips(
+        TripService $tripService,
+        Request $request,
+        TripRepository $tripRepository,
+    ): Response
     {
         $data = $request->toArray();
         foreach ($data["tripIds"] as $tripId) {
