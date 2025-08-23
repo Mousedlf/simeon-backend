@@ -17,9 +17,6 @@ class Image
     #[ORM\GeneratedValue]
     private ?int $id = null;
 
-    // ... other fields
-
-    // NOTE: This is not a mapped field of entity metadata, just a simple property.
     #[Vich\UploadableField(mapping: 'trips', fileNameProperty: 'image.name', size: 'image.size')]
     private ?File $imageFile = null;
 

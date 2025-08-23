@@ -15,11 +15,11 @@ abstract class Category
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['expense:new','expense:index', 'day:read', 'day:index', 'activity:read', 'expenseCategory:index', 'activityCategory:index', 'trip:read'])]
+    #[Groups(['expense:new','expense:index', 'day:read', 'day:index', 'activity:read', 'expenseCategory:index', 'activityCategory:index', 'trip:read', 'document:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['expense:new','expense:index', 'day:read', 'day:index', 'activity:read', 'expenseCategory:index', 'activityCategory:index', 'trip:read'])]
+    #[Groups(['expense:new','expense:index', 'day:read', 'day:index', 'activity:read', 'expenseCategory:index', 'activityCategory:index', 'trip:read', 'document:read'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'custom_categories')]

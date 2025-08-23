@@ -16,9 +16,16 @@ class ActivityCategory extends Category
     #[ORM\OneToMany(targetEntity: TripActivity::class, mappedBy: 'category')]
     private Collection $tripActivities;
 
+    /**
+     * @var Collection<int, Document>
+     */
+    #[ORM\OneToMany(targetEntity: Document::class, mappedBy: 'category')]
+    private Collection $documents;
+
     public function __construct()
     {
         $this->tripActivities = new ArrayCollection();
+        $this->documents = new ArrayCollection();
     }
 
     /**
@@ -45,6 +52,36 @@ class ActivityCategory extends Category
             // set the owning side to null (unless already changed)
             if ($tripActivity->getCategory() === $this) {
                 $tripActivity->setCategory(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Document>
+     */
+    public function getDocuments(): Collection
+    {
+        return $this->documents;
+    }
+
+    public function addDocument(Document $document): static
+    {
+        if (!$this->documents->contains($document)) {
+            $this->documents->add($document);
+            $document->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocument(Document $document): static
+    {
+        if ($this->documents->removeElement($document)) {
+            // set the owning side to null (unless already changed)
+            if ($document->getCategory() === $this) {
+                $document->setCategory(null);
             }
         }
 

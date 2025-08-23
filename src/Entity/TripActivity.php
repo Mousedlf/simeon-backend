@@ -15,15 +15,15 @@ class TripActivity
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
+    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read', 'document:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
+    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read', 'document:read'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
+    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read', 'document:read'])]
     private ?string $address = null;
 
     /**
@@ -41,7 +41,7 @@ class TripActivity
      * @var Collection<int, Document>
      */
     #[ORM\OneToMany(targetEntity: Document::class, mappedBy: 'tripActivity')]
-    #[Groups(['day:read', 'day:index', 'activity:read', 'trip:read'])]
+    #[Groups(['day:read', 'day:index', 'activity:read'])]
     private Collection $documents;
 
     #[ORM\Column]

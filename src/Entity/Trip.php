@@ -15,11 +15,11 @@ class Trip
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['trip:read','expense:new', 'expense:read'])]
+    #[Groups(['trip:read','expense:new', 'expense:read', 'document:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['trip:read','invites:read','expense:new', 'expense:read', 'user:read'])]
+    #[Groups(['trip:read','invites:read','expense:new', 'expense:read', 'user:read', 'document:read'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'createdTrips')]
@@ -28,15 +28,15 @@ class Trip
     private ?User $owner = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['trip:read'])]
+    #[Groups(['trip:read', 'document:read'])]
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Groups(['trip:read','invites:read', 'user:read'])]
+    #[Groups(['trip:read','invites:read', 'user:read', 'document:read'])]
     private ?\DateTimeImmutable $startDate = null;
 
     #[ORM\Column]
-    #[Groups(['trip:read','invites:read', 'user:read'])]
+    #[Groups(['trip:read','invites:read', 'user:read', 'document:read'])]
     private ?\DateTimeImmutable $endDate = null;
 
     #[ORM\Column(nullable: true)]
@@ -87,12 +87,20 @@ class Trip
     #[Groups(['trip:read'])]
     private ?Image $image = null;
 
+    /**
+     * @var Collection<int, Document>
+     */
+    #[ORM\OneToMany(targetEntity: Document::class, mappedBy: 'trip')]
+    #[Groups(['trip:read'])]
+    private Collection $documents;
+
     public function __construct()
     {
         $this->sentInvites = new ArrayCollection();
         $this->participants = new ArrayCollection();
         $this->daysOfTrip = new ArrayCollection();
         $this->expenses = new ArrayCollection();
+        $this->documents = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -335,6 +343,36 @@ class Trip
     public function setImage(?Image $image): static
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Document>
+     */
+    public function getDocuments(): Collection
+    {
+        return $this->documents;
+    }
+
+    public function addDocument(Document $document): static
+    {
+        if (!$this->documents->contains($document)) {
+            $this->documents->add($document);
+            $document->setTrip($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocument(Document $document): static
+    {
+        if ($this->documents->removeElement($document)) {
+            // set the owning side to null (unless already changed)
+            if ($document->getTrip() === $this) {
+                $document->setTrip(null);
+            }
+        }
 
         return $this;
     }

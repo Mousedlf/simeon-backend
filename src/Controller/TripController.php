@@ -55,14 +55,25 @@ class TripController extends AbstractController
      * @return Response
      */
     #[Route('/{id}', methods: ['GET'])]
-    public function getOneTrip(?Trip $trip, TripRepository $tripRepository): Response
+    public function getOneTrip(
+        ?Trip $trip,
+        TripParticipantRepository $tripParticipantRepository): Response
     {
         if (!$trip) {
             return $this->json("trip not found", Response::HTTP_NOT_FOUND);
         }
-        // restrictions?
 
-        return $this->json($trip, Response::HTTP_OK, [], ['groups' => 'trip:read']);
+        $participant = $tripParticipantRepository->findOneParticipant($this->getUser(), $trip);
+        if(!$trip->isPublic() && !$participant){
+            return $this->json("access denied, trip isn't public", Response::HTTP_FORBIDDEN);
+        }
+
+        $response = [
+            'trip' => $trip,
+            'participant' => $participant,
+        ];
+
+        return $this->json($response, Response::HTTP_OK, [], ['groups' => 'trip:read']);
     }
 
     /**

@@ -15,7 +15,7 @@ class TripParticipant
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['trip:read', 'expense:new', 'conversation:read', 'message:read'])]
+    #[Groups(['trip:read', 'expense:new', 'conversation:read', 'message:read', 'document:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'participants')]
@@ -24,7 +24,7 @@ class TripParticipant
 
     #[ORM\ManyToOne(inversedBy: 'trips')]
     #[ORM\JoinColumn(nullable: false, onDelete:"CASCADE")]
-    #[Groups(['trip:read', 'expense:new', 'expense:index', 'conversation:read', 'message:read','participant:read'])]
+    #[Groups(['trip:read', 'expense:new', 'expense:index', 'conversation:read', 'message:read','participant:read', 'document:read'])]
     private ?User $participant = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -56,8 +56,15 @@ class TripParticipant
     private Collection $messages;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['participant:read'])]
+    #[Groups(['participant:read','trip:read'])]
     private ?float $budget = null;
+
+    /**
+     * @var Collection<int, Document>
+     */
+    #[ORM\OneToMany(targetEntity: Document::class, mappedBy: 'addedBy', orphanRemoval: true)]
+    #[Groups(['participant:read'])]
+    private Collection $documents;
 
     public function __construct()
     {
@@ -65,6 +72,7 @@ class TripParticipant
         $this->paidExpenses = new ArrayCollection();
         $this->conversations = new ArrayCollection();
         $this->messages = new ArrayCollection();
+        $this->documents = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -231,6 +239,36 @@ class TripParticipant
     public function setBudget(?float $budget): static
     {
         $this->budget = $budget;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Document>
+     */
+    public function getDocuments(): Collection
+    {
+        return $this->documents;
+    }
+
+    public function addDocument(Document $document): static
+    {
+        if (!$this->documents->contains($document)) {
+            $this->documents->add($document);
+            $document->setAddedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTripDocument(Document $tripDocument): static
+    {
+        if ($this->tripDocuments->removeElement($tripDocument)) {
+            // set the owning side to null (unless already changed)
+            if ($tripDocument->getAddedBy() === $this) {
+                $tripDocument->setAddedBy(null);
+            }
+        }
 
         return $this;
     }

@@ -84,7 +84,7 @@ class TripInviteController extends AbstractController
      * @param TripInvite|null $invite
      * @return Response
      */
-    #[Route('/{id}/retract', methods: ['POST'])]
+    #[Route('/{id}/retract', methods: ['DELETE'])]
     public function retractTripInvite(TripInviteService $tripInviteService, ?TripInvite $invite): Response
     {
         if (!$invite) {
