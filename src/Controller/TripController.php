@@ -94,10 +94,10 @@ class TripController extends AbstractController
 
     #[Route('/{id}/image', methods: ['POST'])]
     public function addImageToTrip(
-        ?Trip $trip,
+        TripParticipantRepository $tripParticipantRepository,
         TripService $tripService,
         Request     $request,
-        TripParticipantRepository $tripParticipantRepository
+        ?Trip $trip
     ):Response
     {
         $participant = $tripParticipantRepository->findOneParticipant($this->getUser(), $trip);
