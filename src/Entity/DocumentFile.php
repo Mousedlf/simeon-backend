@@ -21,7 +21,7 @@ class DocumentFile
     private ?File $file = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['document:read'])]
+    #[Groups(['document:read','documentUser:index'])]
     private ?string $fileName = null;
 
     #[ORM\Column(nullable: true)]
@@ -29,7 +29,7 @@ class DocumentFile
     private ?int $fileSize = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['document:read'])]
+    #[Groups(['document:read','documentUser:index'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\OneToOne(mappedBy: 'file', cascade: ['persist', 'remove'])]

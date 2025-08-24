@@ -16,6 +16,18 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api/document')]
 class DocumentController extends AbstractController
 {
+    /**
+     * Get all documents of current user.
+     * @return Response
+     */
+    #[Route('/user/all', methods: ['GET'])]
+    public function getAllDocumentsOfUser(): Response
+    {
+        $currentUser = $this->getUser();
+
+        $documents = $currentUser->getDocuments();
+        return $this->json($documents, Response::HTTP_OK, [], ['groups' => ['documentUser:index']]);
+    }
 
     /**
      * Get one document.
@@ -25,7 +37,7 @@ class DocumentController extends AbstractController
      * @return Response
      */
     #[Route('/{id}/trip/{tripId}', methods: ['GET'])]
-    public function getDocument(
+    public function getDocumentOfATrip(
         #[MapEntity(id: 'id')] ?Document $document,
         #[MapEntity(id: 'tripId')] ?Trip $trip,
         TripParticipantRepository $tripParticipantRepository,

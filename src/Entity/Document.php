@@ -13,19 +13,19 @@ class Document
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['participant:read','trip:read', 'document:read'])]
+    #[Groups(['participant:read','trip:read', 'document:read','documentUser:index'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['participant:read','trip:read', 'document:read'])]
+    #[Groups(['participant:read','trip:read', 'document:read','documentUser:index'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['participant:read','trip:read', 'document:read'])]
+    #[Groups(['participant:read','trip:read', 'document:read','documentUser:index'])]
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Groups(['participant:read','trip:read', 'document:read'])]
+    #[Groups(['participant:read','trip:read', 'document:read','documentUser:index'])]
     private ?\DateTimeImmutable $added_at = null;
 
     #[ORM\ManyToOne(inversedBy: 'documents')]
@@ -42,7 +42,7 @@ class Document
 
     #[ORM\OneToOne(inversedBy: 'document', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['trip:read', 'document:read'])]
+    #[Groups(['trip:read', 'document:read','documentUser:index'])]
     private ?DocumentFile $file = null;
 
     #[ORM\ManyToOne(inversedBy: 'documents')]
