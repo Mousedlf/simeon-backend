@@ -25,8 +25,10 @@ class DocumentController extends AbstractController
     {
         $currentUser = $this->getUser();
 
-        $documents = $currentUser->getDocuments();
-        return $this->json($documents, Response::HTTP_OK, [], ['groups' => ['documentUser:index']]);
+        $response =[
+            "documents" => $currentUser->getDocuments()
+        ];
+        return $this->json($response, Response::HTTP_OK, [], ['groups' => ['documentUser:index']]);
     }
 
     /**
