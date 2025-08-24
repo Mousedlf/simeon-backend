@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Trip;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -38,15 +39,16 @@ class TripRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findOneByNameAndUser($name, $user): ?Trip
+    public function findByUserOrderedByStartDate(User $user): array
     {
         return $this->createQueryBuilder('t')
-            ->andWhere('t.name = :name')
-            ->andWhere('t.owner = :user')
-            ->setParameter('name', $name)
+            ->innerJoin('t.participants', 'tp')
+            ->innerJoin('tp.participant', 'u')
+            ->where('u = :user')
             ->setParameter('user', $user)
+            ->orderBy('t.startDate', 'DESC')
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult();
     }
 
 

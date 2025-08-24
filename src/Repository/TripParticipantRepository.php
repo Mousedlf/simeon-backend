@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Trip;
 use App\Entity\TripParticipant;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,7 +21,7 @@ class TripParticipantRepository extends ServiceEntityRepository
     /**
      * @return TripParticipant[] Returns an array of TripParticipant objects
      */
-    public function findByUser($user): array
+    public function findByUser(User $user): array
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.participant = :u')
@@ -30,7 +32,7 @@ class TripParticipantRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findOneParticipant($user, $trip): ?TripParticipant
+    public function findOneParticipant(User $user, Trip $trip): ?TripParticipant
     {
         return $this->createQueryBuilder('tp')
             ->andWhere('tp.participant = :user')
