@@ -10,6 +10,7 @@ use App\Repository\DayOfTripRepository;
 use App\Repository\ExpenseCategoryRepository;
 use App\Repository\TripParticipantRepository;
 use App\Repository\TripRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -24,6 +25,7 @@ class ExpenseService
         public DayOfTripRepository       $dayOfTripRepository,
         public ExpenseCategoryRepository $expenseCategoryRepository,
         public CurrencyRepository        $currencyRepository,
+        public UserRepository            $userRepository,
     )
     {
     }
@@ -42,7 +44,12 @@ class ExpenseService
 
         $expense->setTrip($trip);
         $expense->setDayOfTrip($this->dayOfTripRepository->findOneBy(['id' => $data['dayOfTrip']]));
-        $expense->setPaidBy($this->tripParticipantRepository->findOneParticipant($data['paidBy'], $trip));
+
+        $userWhoPaid = $this->userRepository->findOneBy(['id' => $data['paidBy']]);
+        if($userWhoPaid){
+            $expense->setPaidBy($this->tripParticipantRepository->findOneParticipant($userWhoPaid, $trip));
+        }
+
         $expense->setName($data['name']);
         $expense->setAmountLocalCurrency($data['amountLocalCurrency']);
         $expense->setCurrency($this->currencyRepository->findOneBy(['id' => $data['currency']]));
@@ -103,7 +110,11 @@ class ExpenseService
         $data = $request->toArray();
 
         $expense->setDayOfTrip($this->dayOfTripRepository->findOneBy(['id' => $data['dayOfTrip']]));
-        $expense->setPaidBy($this->tripParticipantRepository->findOneParticipant($data['paidBy'], $expense->getTrip()));
+
+        $userWhoPaid = $this->userRepository->findOneBy(['id' => $data['paidBy']]);
+        if($userWhoPaid){
+            $expense->setPaidBy($this->tripParticipantRepository->findOneParticipant($userWhoPaid, $expense->getTrip()));
+        }
         $expense->setName($data['name']);
         $expense->setPaymentMethod($data['paymentMethod']);
         $expense->setPersonal($data['personal']);
