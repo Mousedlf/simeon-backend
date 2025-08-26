@@ -30,7 +30,7 @@ class TripActivity
      * @var Collection<int, DayOfTrip>
      */
     #[ORM\ManyToMany(targetEntity: DayOfTrip::class, inversedBy: 'activities')]
-    #[Groups(['activity:read'])]
+    #[Groups(['activity:read', 'trip:read'])]
     private Collection $day;
 
     #[ORM\ManyToOne(inversedBy: 'tripActivities')]
