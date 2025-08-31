@@ -7,7 +7,9 @@ use App\Entity\Image;
 use App\Entity\TripActivity;
 use App\Repository\ActivityCategoryRepository;
 use App\Repository\DayOfTripRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -27,7 +29,7 @@ class ActivityService
      * @param Request $request
      * @return array
      */
-    public function addActivityToTrip(Request $request) : array
+    public function addActivityToTrip(Request $request): array
     {
         $activity = $this->serializer->deserialize($request->getContent(), TripActivity::class, 'json');
         $data = $request->toArray();
@@ -36,10 +38,10 @@ class ActivityService
         $dayOfTrip = $this->dayOfTripRepository->findOneBy(['id' => $data['dayOfTrip']]);
 
         if (!$category) {
-            throw new \Exception('Activity category not found with ID ' . $data['category']);
+            throw new Exception('Activity category not found with ID ' . $data['category']);
         }
         if (!$dayOfTrip) {
-            throw new \Exception('Day of trip not found with ID ' . $data['dayOfTrip']);
+            throw new Exception('Day of trip not found with ID ' . $data['dayOfTrip']);
         }
 
         $activity->setCategory($category);
@@ -57,7 +59,7 @@ class ActivityService
 
                     $image = new Image();
                     $image->setGoogleImageUrl($photoUrl);
-                    $image->setUpdatedAt(new \DateTimeImmutable());
+                    $image->setUpdatedAt(new DateTimeImmutable());
                     $image->setTripActivity($activity);
                     $this->manager->persist($image);
                     $activity->setImage($image);
@@ -76,12 +78,11 @@ class ActivityService
 
     /**
      * Edit activity.
-     * @param DayOfTrip $dayOfTrip
      * @param Request $request
      * @param TripActivity $activity
      * @return array
      */
-    public function editActivityOfTrip(DayOfTrip $dayOfTrip, Request $request, TripActivity $activity) : array
+    public function editActivityOfTrip(Request $request, TripActivity $activity): array
     {
         $data = $request->toArray();
 
@@ -90,7 +91,11 @@ class ActivityService
         $activity->setName($data['name']);
         $activity->setAddress($data['address']);
         $activity->setCategory($this->activityCategoryRepository->findOneBy(['id' => $data['category']]));
-        $activity->addDay($dayOfTrip);
+
+        $dayOfTrip = $this->dayOfTripRepository->findOneBy(['id' => $data['dayOfTrip']]);
+        if ($dayOfTrip) {
+            $activity->addDay($dayOfTrip);
+        }
 
         $this->manager->persist($activity);
         $this->manager->flush();
@@ -105,7 +110,7 @@ class ActivityService
      * Delete activity.
      * @param TripActivity $tripActivity
      */
-    public function deleteActivity(TripActivity $tripActivity) : void
+    public function deleteActivity(TripActivity $tripActivity): void
     {
         $this->manager->remove($tripActivity);
         $this->manager->flush();

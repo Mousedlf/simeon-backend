@@ -18,11 +18,10 @@ use Symfony\Component\Routing\Attribute\Route;
 class TripActivityController extends AbstractController
 {
     #[Route('/new/trip/{tripId}', name: "app_trip_new-activity", methods: ['POST'])]
-    #[Route('/edit/{id}/trip/{tripId}/day/{dayId}', name: "app_trip_edit-activity", methods: ['PUT'])]
+    #[Route('/edit/{id}/trip/{tripId}', name: "app_trip_edit-activity", methods: ['PUT'])]
     public function addTripActivity(
         #[MapEntity(id: 'id')] ?TripActivity $tripActivity,
         #[MapEntity(id: 'tripId')] ?Trip $trip,
-        #[MapEntity(id: 'dayId')] ?DayOfTrip $dayOfTrip,
         ActivityService $activityService,
         Request $request,
         TripParticipantRepository $tripParticipantRepository
@@ -40,10 +39,10 @@ class TripActivityController extends AbstractController
         endswitch;
 
         if ($request->get('_route') == "app_trip_edit-activity") {
-            if(!$tripActivity || !$dayOfTrip) {
-                return $this->json("trip activity or day not found", Response::HTTP_NOT_FOUND);
+            if(!$tripActivity) {
+                return $this->json("trip activity not found", Response::HTTP_NOT_FOUND);
             }
-            $calledFunction = $activityService->editActivityOfTrip($dayOfTrip, $request, $tripActivity);
+            $calledFunction = $activityService->editActivityOfTrip($request, $tripActivity);
         } else {
 
             $calledFunction = $activityService->addActivityToTrip($request);
