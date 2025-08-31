@@ -204,6 +204,7 @@
                 <a href="#user-visibility" class="toc-link">Modifier visibilité</a>
                 <a href="#user-username" class="toc-link">Modifier nom d'utilisateur</a>
                 <a href="#user-public" class="toc-link">Utilisateurs publics</a>
+                <a href="#user-stats" class="toc-link">Statistiques voyage</a>
             </div>
 
             <div class="toc-section">
@@ -240,6 +241,7 @@
                 <a href="#trips-delete-multiple" class="toc-link">Supprimer plusieurs</a>
                 <a href="#trip-edit-dates" class="toc-link">Modifier dates</a>
                 <a href="#trip-invitable" class="toc-link">Personnes invitables</a>
+                <a href="#trips-public" class="toc-link">Voyages publics</a>
             </div>
 
             <div class="toc-section">
@@ -251,12 +253,24 @@
             </div>
 
             <div class="toc-section">
+                <div class="toc-section-title">Documents</div>
+                <a href="#document-get" class="toc-link">Récupérer document</a>
+                <a href="#document-add-trip" class="toc-link">Ajouter à voyage</a>
+                <a href="#document-add-user" class="toc-link">Ajouter à utilisateur</a>
+                <a href="#document-edit" class="toc-link">Modifier document</a>
+                <a href="#documents-user" class="toc-link">Docs utilisateur</a>
+                <a href="#document-delete" class="toc-link">Supprimer document</a>
+            </div>
+
+            <div class="toc-section">
                 <div class="toc-section-title">Activités</div>
                 <a href="#activities-day" class="toc-link">Activités d'un jour</a>
                 <a href="#activity-add" class="toc-link">Ajouter activité</a>
                 <a href="#activity-edit" class="toc-link">Modifier activité</a>
                 <a href="#activity-delete" class="toc-link">Supprimer activité</a>
                 <a href="#activities-reorder" class="toc-link">Réorganiser activités</a>
+                <a href="#google-find-place" class="toc-link">Rechercher lieu (Google)</a>
+                <a href="#google-place-details" class="toc-link">Détails lieu (Google)</a>
             </div>
 
             <div class="toc-section">
@@ -271,10 +285,10 @@
         </nav>
 
         <main class="main-content">
-            <h1>API SIMEON - Documentation</h1>
+            <h1>API SIMEON</h1>
+            <p class="subtitle">Documentation de l'API</p>
 
-            <p>Simeon est une application conçue pour simplifier l'organisation et le suivi de voyages, qu'ils soient en
-                solo ou en groupe. Grâce à une interface intuitive, l'application offre :</p>
+            <p>Simeon est une application conçue pour simplifier l'organisation et le suivi de voyages, qu'ils soient en solo ou en groupe. Grâce à une interface intuitive, l'application offre :</p>
             <ul>
                 <li>Gestion des itinéraires (création, modification, visualisation).</li>
                 <li>Suivi des dépenses avec catégorisation et analyse en temps réel.</li>
@@ -283,15 +297,13 @@
                 <li>Et bien plus encore.</li>
             </ul>
 
-            <p>Lien vers le dépôt Github : <a href="https://github.com/Mousedlf/simeon-backend" target="_blank">https://github.com/Mousedlf/simeon-backend</a>
-            </p>
+            <p>Lien vers le dépôt Github : <a href="https://github.com/Mousedlf/simeon-backend" target="_blank">https://github.com/Mousedlf/simeon-backend</a></p>
 <br>
             <p><strong>Remarque :</strong><br>
-                Lorsque <span class="auth">🔒 Auth requis</span> est indiqué, vous devez inclure un Bearer Token dans
-                l'en-tête Authorization de votre requête.</p>
-
+                Lorsque <span class="auth">🔒 Auth requis</span> est indiqué, vous devez inclure un Bearer Token dans l'en-tête Authorization de votre requête.</p>
 
             <h2 id="auth">Authentification</h2>
+
             <div class="endpoint" id="register">
                 <div class="method-line">
                     <span class="method post">POST</span>
@@ -369,6 +381,16 @@
                 <div class="description">Récupérer la liste de tous les utilisateurs publics</div>
             </div>
 
+            <div class="endpoint" id="user-stats">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/user/{id}/stats</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Statistiques de voyage</div>
+                <div class="description">Récupérer les statistiques de voyage d'un utilisateur</div>
+            </div>
+
             <h2 id="participants">Participants</h2>
 
             <div class="endpoint" id="add-people">
@@ -422,7 +444,7 @@
 
             <div class="endpoint" id="accept-invite">
                 <div class="method-line">
-                    <span class="method get">GET</span>
+                    <span class="method post">POST</span>
                     <span class="url">/api/invite/{id}/accept</span>
                     <span class="auth">🔒 Auth requis</span>
                 </div>
@@ -432,7 +454,7 @@
 
             <div class="endpoint" id="decline-invite">
                 <div class="method-line">
-                    <span class="method get">GET</span>
+                    <span class="method post">POST</span>
                     <span class="url">/api/invite/{id}/decline</span>
                     <span class="auth">🔒 Auth requis</span>
                 </div>
@@ -451,17 +473,17 @@
                 <div class="code">
                     {
                     "participants": [
-                        {
-                        "userId": 1,
-                        "statusId": 3
-                        }
-                    ]}
-                </div>
+                    {
+                    "userId": 1,
+                    "statusId": 3
+                    }
+                    ]
+                    }</div>
             </div>
 
             <div class="endpoint" id="retract-invite">
                 <div class="method-line">
-                    <span class="method get">GET</span>
+                    <span class="method delete">DELETE</span>
                     <span class="url">/api/invite/{id}/retract</span>
                     <span class="auth">🔒 Auth requis</span>
                 </div>
@@ -702,6 +724,16 @@
                 <div class="description">Récupérer la liste des personnes pouvant être invitées à un voyage</div>
             </div>
 
+            <div class="endpoint" id="trips-public">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/trip/community</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Voyages publics</div>
+                <div class="description">Récupérer tous les voyages publics de la communauté</div>
+            </div>
+
             <h2 id="conversations">Conversations</h2>
 
             <div class="endpoint" id="conversation-show">
@@ -749,9 +781,98 @@
                 <div class="description">Modifier un message existant dans une conversation</div>
                 <div class="code">
                     {
-                    "content": "contenu modifié"
+                    "content": "edité ejsfo"
                     }
                 </div>
+            </div>
+
+            <h2 id="documents">Documents</h2>
+
+            <div class="endpoint" id="document-get">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/document/{id}/trip/{tripId}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Récupérer document</div>
+                <div class="description">Récupérer un document spécifique d'un voyage</div>
+            </div>
+
+            <div class="endpoint" id="document-add-trip">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/document/new/trip/{id}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Ajouter document à un voyage</div>
+                <div class="description">Ajouter un document à un voyage (multipart/form-data)</div>
+                <div class="code">
+                    Form Data:
+                    file: [fichier]
+                    data: {
+                    "name": "",
+                    "description": "",
+                    "tripActivity": null,
+                    "category": null
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="document-add-user">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/document/new/user</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Ajouter document à un utilisateur</div>
+                <div class="description">Ajouter un document personnel à un utilisateur (multipart/form-data)</div>
+                <div class="code">
+                    Form Data:
+                    file: [fichier]
+                    data: {
+                    "name": "dossier pro"
+                    }
+                </div>
+            </div>
+
+            <div class="endpoint" id="document-edit">
+                <div class="method-line">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/document/{id}/trip/{tripId}/edit</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Modifier document</div>
+                <div class="description">Modifier les métadonnées d'un document (multipart/form-data)</div>
+                <div class="code">
+                    Form Data:
+                    data: {
+                    "name": "attestation tcl",
+                    "description": "pdf test",
+                    "tripActivity": null,
+                    "category": 19
+                    }
+                    file: [optionnel]
+                </div>
+            </div>
+
+            <div class="endpoint" id="documents-user">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/document/user/all</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Documents utilisateur</div>
+                <div class="description">Récupérer tous les documents d'un utilisateur</div>
+            </div>
+
+            <div class="endpoint" id="document-delete">
+                <div class="method-line">
+                    <span class="method delete">DELETE</span>
+                    <span class="url">/api/document/{id}/trip/{tripId}/delete</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Supprimer document</div>
+                <div class="description">Supprimer un document d'un voyage</div>
             </div>
 
             <h2 id="activities">Activités</h2>
@@ -769,11 +890,11 @@
             <div class="endpoint" id="activity-add">
                 <div class="method-line">
                     <span class="method post">POST</span>
-                    <span class="url">/api/activity/new/trip/{tripId}/day/{day}</span>
+                    <span class="url">/api/activity/new/trip/{tripId}</span>
                     <span class="auth">🔒 Auth requis</span>
                 </div>
                 <div class="endpoint-name">Ajouter activité</div>
-                <div class="description">Ajouter une nouvelle activité à une journée</div>
+                <div class="description">Ajouter une nouvelle activité à un voyage</div>
                 <div class="code">
                     {
                     "name": "Tour eiffel",
@@ -781,7 +902,8 @@
                     "category": 20,
                     "longitude": 2.2945006,
                     "latitude": 48.8582599,
-                    "note": "classique"
+                    "note": "classique",
+                    "dayOfTrip": 16
                     }
                 </div>
             </div>
@@ -789,7 +911,7 @@
             <div class="endpoint" id="activity-edit">
                 <div class="method-line">
                     <span class="method put">PUT</span>
-                    <span class="url">/api/activity/edit/{id}/trip/{tripId}/day/{day}</span>
+                    <span class="url">/api/activity/edit/{id}/trip/{tripId}</span>
                     <span class="auth">🔒 Auth requis</span>
                 </div>
                 <div class="endpoint-name">Modifier activité</div>
@@ -829,6 +951,26 @@
                     "order": [2, 1]
                     }
                 </div>
+            </div>
+
+            <div class="endpoint" id="google-find-place">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/google/find-place?input={query}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Rechercher lieu (Google)</div>
+                <div class="description">Rechercher un lieu via l'API Google Places</div>
+            </div>
+
+            <div class="endpoint" id="google-place-details">
+                <div class="method-line">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/google/place-details?place_id={placeId}</span>
+                    <span class="auth">🔒 Auth requis</span>
+                </div>
+                <div class="endpoint-name">Détails lieu (Google)</div>
+                <div class="description">Récupérer les détails d'un lieu via son Google Place ID</div>
             </div>
 
             <h2 id="currencies">Devises</h2>
