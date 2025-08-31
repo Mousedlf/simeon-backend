@@ -21,7 +21,7 @@ class DocumentFile
     private ?File $file = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['document:read','documentUser:index'])]
+    #[Groups(['document:read','documentUser:index', 'trip:read'])]
     private ?string $fileName = null;
 
     #[ORM\Column(nullable: true)]
