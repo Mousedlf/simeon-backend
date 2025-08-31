@@ -102,7 +102,9 @@ class TripInviteService
         foreach ($tripParticipants as $tripParticipant) {
             $sentInvites = $tripParticipant->getParticipant()->getSentTripInvites();
             foreach ($sentInvites as $sentInvite) {
-                $recipientIdsMap[$sentInvite->getRecipient()->getId()] = true;
+                if ($sentInvite->getTrip()->getId() === $trip->getId()) {
+                    $recipientIdsMap[$sentInvite->getRecipient()->getId()] = true;
+                }
             }
         }
 
