@@ -132,7 +132,7 @@ class TripService
     }
 
     /**
-     * Edit textual infos of a trip (title, description).
+     * Edit infos of a trip (title, description, status).
      * @param Trip $trip
      * @param Request $request
      * @return Trip|string
@@ -148,6 +148,7 @@ class TripService
 
         $trip->setName($editedTrip->getName());
         $trip->setDescription($editedTrip->getDescription());
+        $trip->setPublic($editedTrip->getPublic());
 
         $this->manager->persist($trip);
         $this->manager->flush();
